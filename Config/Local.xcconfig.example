@@ -1,0 +1,13 @@
+// Copy to Config/Local.xcconfig (git-ignored) and fill in your own values.
+
+// Your Apple Developer Team ID (Xcode → Settings → Accounts, or developer.apple.com → Membership).
+// A free personal team works for running on your own Mac.
+DEVELOPMENT_TEAM = ABCDE12345
+
+// Reverse-DNS prefix you own; the app becomes $(BUNDLE_ID_PREFIX).kangcharge.
+BUNDLE_ID_PREFIX = com.yourname
+
+// If you build from the command line without an Apple ID signed into Xcode,
+// use manual signing with the "Apple Development" certificate in your keychain:
+// CODE_SIGN_STYLE = Manual
+// PROVISIONING_PROFILE_SPECIFIER =

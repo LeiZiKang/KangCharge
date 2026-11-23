@@ -8,34 +8,113 @@
 
 /* Begin PBXBuildFile section */
 		006AA3C756B19F26CD8D7DD6 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9699835DB6E4B9A4375857BC /* SetupView.swift */; };
+		00DEF7C197B9603408866102 /* Names.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E269F8346EE1CBC48E693D /* Names.swift */; };
+		04BEB20538EFD1FE747C568E /* KangChargeWatchWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 216BEC1FD18B726653BAAA5E /* KangChargeWatchWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		06CAD0ED6EF5938FAE275BA9 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC1EBE3A91CCD30118B53A /* Models.swift */; };
 		0ADE6A6E0ED2F50A5DA18504 /* Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7B988498F97163DBC382D17 /* Shortcuts.swift */; };
+		0B727BDFD13AB9B995B788E2 /* WatchSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FC61A52D848E4F9BF185582 /* WatchSync.swift */; };
 		106333EC6A867E9EC117CC3E /* KangChargeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373A31607700F255A8B4A5E3 /* KangChargeApp.swift */; };
 		10E415287CE35D1893DAB8E0 /* ChargerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935F432063D9476D17DD516E /* ChargerAPI.swift */; };
+		13525406680EB0DA5DB3E8DB /* Names.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E269F8346EE1CBC48E693D /* Names.swift */; };
+		13555CC2780F407B4B80BAA6 /* KangChargeWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF0089B20B9B1339765222DD /* KangChargeWatchApp.swift */; };
+		16B60E14A929D9AB61BA1A94 /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D9647BEAA6C76295B9AC3E /* Style.swift */; };
 		16E83447D215D25095DFBAFC /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D53D49E7C8A6001C2ADE314 /* WidgetViews.swift */; };
+		19154115319A52FCDABC1BAE /* SecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EC56C4B4719C733C945F1A /* SecureStore.swift */; };
+		19E93E3EC285670373C7099C /* MCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD331EFD0CFE0A079F66A191 /* MCPClient.swift */; };
+		1AE83D854FC799E8B5361F58 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 85F5FCF66440D12C88FDD301 /* PrivacyInfo.xcprivacy */; };
 		23C805049CCE993D5CF94D9F /* CableDiagram.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD3AF6D6BA810233A8688B4 /* CableDiagram.swift */; };
 		2C36B5547CCD483ACB259E87 /* PortViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0CA1481AB4EEB862E0A87E /* PortViews.swift */; };
+		2CFDC6AD6F734361AE051620 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85CC41C1AC87F64D319778C /* AppModel.swift */; };
+		2E5FECD22B796DEA2AAEC793 /* KangChargeWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E881BA0D506A479F86728BC /* KangChargeWidgets.swift */; };
+		36E0ED0E40E94BB5EB4D7C8A /* MCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD331EFD0CFE0A079F66A191 /* MCPClient.swift */; };
+		39E08BC227133B2E210B30F6 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDBC83EB40C480514D92A333 /* SetupView.swift */; };
+		3F407B237D5D72B4CE8DF36B /* ChargerSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A59305CEC4593099493F08D /* ChargerSource.swift */; };
 		3F9E1F07494CB0414D490BBA /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC1EBE3A91CCD30118B53A /* Models.swift */; };
+		451E39088B4BAAF77EED7E5F /* Names.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E269F8346EE1CBC48E693D /* Names.swift */; };
 		481414AF756E2A5C2210010A /* MCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD331EFD0CFE0A079F66A191 /* MCPClient.swift */; };
 		48FD210495745C50AD410716 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B191FCE850273F6E1D7C5D3A /* Theme.swift */; };
 		49D430D875024A4677379E73 /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D53D49E7C8A6001C2ADE314 /* WidgetViews.swift */; };
 		5827DBEEB436A0A63FAE7E49 /* ChargerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09F9731D56D941E4FCD92E5 /* ChargerStore.swift */; };
+		5A6FF9421335B686E48D81E9 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928DE653CA07E988C18C79C4 /* HomeView.swift */; };
+		5B06AC3072499D56F154AA49 /* MCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD331EFD0CFE0A079F66A191 /* MCPClient.swift */; };
 		5E86D45B08E531BC4B57AF19 /* KangChargeWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 456AAB5ED0B63F30259DAB7F /* KangChargeWidget.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		5E9C9AE0F519B66E299C4250 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6ABB95DAB8EE673CC84409D /* SettingsView.swift */; };
+		63835587F2C54BF9F45BB010 /* MCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD331EFD0CFE0A079F66A191 /* MCPClient.swift */; };
+		65279890418F689411F78AD6 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EFF9810471605A33B2676B99 /* Localizable.xcstrings */; };
+		66509B8E5E430B4765C02927 /* SecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EC56C4B4719C733C945F1A /* SecureStore.swift */; };
 		69220F4A06F6B40B0AFC2D0A /* CableDiagram.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD3AF6D6BA810233A8688B4 /* CableDiagram.swift */; };
+		692AFF010FA7B39BCE1D3125 /* ChargerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935F432063D9476D17DD516E /* ChargerAPI.swift */; };
+		6D14743D76C80D6BC956703B /* WatchSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADE999247959B9B68757167 /* WatchSync.swift */; };
+		6E59BC1AACBC0AD155FF2DD1 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EFF9810471605A33B2676B99 /* Localizable.xcstrings */; };
+		769CB10C4C6F75EB58404AAA /* KangChargeWatchWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9CF9A0499A0F9B463BA16F7 /* KangChargeWatchWidgets.swift */; };
+		7F53A95CB50C68F9323DF172 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750B94A928354A0980AA5006 /* Intents.swift */; };
+		7FD9212E30C171E71E83B870 /* ChargerSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A59305CEC4593099493F08D /* ChargerSource.swift */; };
+		8852E7491A11DDDEB5EBFCAE /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC1EBE3A91CCD30118B53A /* Models.swift */; };
+		88F8D34964090108BDF46D73 /* ChargerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935F432063D9476D17DD516E /* ChargerAPI.swift */; };
+		8A3C0A0262348865DE7AE405 /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D9647BEAA6C76295B9AC3E /* Style.swift */; };
 		91C69659E2DE6C644CE66A6E /* MCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD331EFD0CFE0A079F66A191 /* MCPClient.swift */; };
+		9225FE929B2786335DEE6353 /* KangChargeWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 4A5897953AE5BFCD09D1CC82 /* KangChargeWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		928486FFDE6451C6ACD8A591 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750B94A928354A0980AA5006 /* Intents.swift */; };
+		93CA1DA6CBCF4049833F8238 /* KangChargeiOSWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2858C4645825172311B39FC8 /* KangChargeiOSWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		987C36018573A7902FF000D5 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A06BC5A25C3762BF5516715 /* Intents.swift */; };
+		9BDC1816AA12CA9ABCDE52A1 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750B94A928354A0980AA5006 /* Intents.swift */; };
+		9D4FC62B6F145E7985BEBE51 /* AppShortcuts.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 1392712FB0174318C5775AEC /* AppShortcuts.xcstrings */; };
+		A01509C3F0D436F32D4073DF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 85F5FCF66440D12C88FDD301 /* PrivacyInfo.xcprivacy */; };
+		A03F6424793072575F3CC5A5 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EFF9810471605A33B2676B99 /* Localizable.xcstrings */; };
+		A1CDB2FF28DB1BB761C2510F /* SecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EC56C4B4719C733C945F1A /* SecureStore.swift */; };
 		A20594FFB197D7BE8652106A /* KangChargeWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AF9CC03063CF57E10601DA /* KangChargeWidget.swift */; };
+		A3EF25ECC5804ADBFAE2A333 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750B94A928354A0980AA5006 /* Intents.swift */; };
 		A6851C5BEBDD8E5986736226 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC1EBE3A91CCD30118B53A /* Models.swift */; };
+		A6DA0799CACB9E84078A185E /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D9647BEAA6C76295B9AC3E /* Style.swift */; };
+		AA4284CB343F9484FD95F286 /* KangChargeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A48162E2C84CD3332D21FB60 /* KangChargeApp.swift */; };
 		AABC0BFB3918FEEC821F0C35 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EFCA5B0DCEB0D1F04FE5D2 /* DashboardView.swift */; };
 		AF3F19659D3C04E6AA961459 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A06BC5A25C3762BF5516715 /* Intents.swift */; };
 		B1435734058A392F53A99804 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B191FCE850273F6E1D7C5D3A /* Theme.swift */; };
+		B3765557B4E2B7ECAB5D9849 /* ChargerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935F432063D9476D17DD516E /* ChargerAPI.swift */; };
+		B3F073DAC6ECA0B75F91BADA /* ChargerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935F432063D9476D17DD516E /* ChargerAPI.swift */; };
+		B7FFFFB199B3563E050A1BBF /* Names.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2E269F8346EE1CBC48E693D /* Names.swift */; };
 		BA5BFE6342D6753576CEBCC4 /* ControlViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59CA93DA1EB9FD55742D689 /* ControlViews.swift */; };
+		BB82B86B854CD289EDB4E238 /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C332B597759B7D5B4DEFE3A3 /* WidgetViews.swift */; };
+		C5EC919C061FB7AD4683494B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 85E9605E8CC83940F4BC4489 /* Assets.xcassets */; };
 		CA1BCE0B0CA36DC408D6F45C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B24472D6B4619E951D979F59 /* Assets.xcassets */; };
+		D164D1DC188E31B5395BF2C8 /* WatchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D18DA306530584E6EB11F1 /* WatchModel.swift */; };
+		D25F79C65E4AB032E394C85C /* ChargerSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A59305CEC4593099493F08D /* ChargerSource.swift */; };
+		D28F3E4D9DC7CA496C41F3FB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 74985B5135FEAE8199E5DD5B /* Assets.xcassets */; };
+		E171F1D2911A58112EA149BE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 85F5FCF66440D12C88FDD301 /* PrivacyInfo.xcprivacy */; };
+		E5A57FFA51D2C3CA229037FD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 85F5FCF66440D12C88FDD301 /* PrivacyInfo.xcprivacy */; };
+		E8FCA40F7E034B732CA4CE44 /* ChargerSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A59305CEC4593099493F08D /* ChargerSource.swift */; };
+		EC9452F76561BCE0AA0C2907 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = EFF9810471605A33B2676B99 /* Localizable.xcstrings */; };
+		ED0A60467FD998CEA8EC5139 /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D9647BEAA6C76295B9AC3E /* Style.swift */; };
+		EF40A219D522E172222D7D6B /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC1EBE3A91CCD30118B53A /* Models.swift */; };
 		F3DA92B0635F4F4F60C736E6 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D15687C308990CEB545D0606 /* MenuBarView.swift */; };
 		F919797E07C70218F3B52821 /* ChargerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935F432063D9476D17DD516E /* ChargerAPI.swift */; };
+		FA44D12C6494D8C953AF8A04 /* SecureStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49EC56C4B4719C733C945F1A /* SecureStore.swift */; };
+		FB64F9CE79E652FEAD138424 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC1EBE3A91CCD30118B53A /* Models.swift */; };
 		FC3BA49F488069945D81C807 /* DebugSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C1D37D62E15F50DF53C67 /* DebugSnapshot.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0C70480E460DEBBEC2F9DDA2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F140FE965280700A6EB3D626 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7893E7646CE6B55DFB9159BB;
+			remoteInfo = KangChargeWatch;
+		};
+		1803F59D06040DA9E4E0F454 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F140FE965280700A6EB3D626 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41B6CE0257F3B1719A5AF30C;
+			remoteInfo = KangChargeWatchWidget;
+		};
+		5F5376FA6E6F32290664680E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F140FE965280700A6EB3D626 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5727503D259C7BA1A099C7DD;
+			remoteInfo = KangChargeiOSWidget;
+		};
 		B5AC7BD0382CD174ABA53933 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F140FE965280700A6EB3D626 /* Project object */;
@@ -46,6 +125,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		40F500D1F82D1C3F8C4D7BC4 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				9225FE929B2786335DEE6353 /* KangChargeWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9175D32099F6A66F14BD68FD /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -57,33 +147,89 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		984A7CE54DF2F19679FD7A56 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				93CA1DA6CBCF4049833F8238 /* KangChargeiOSWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A214BDCE5F7FCE79DF4A6E5E /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				04BEB20538EFD1FE747C568E /* KangChargeWatchWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01EF6E6ABF0E91886016444E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		026D2ACB9D12E09354743BD2 /* KangChargeWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KangChargeWatch.entitlements; sourceTree = "<group>"; };
+		09D7407D355A6D92FA69B850 /* KangChargeWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KangChargeWidget.entitlements; sourceTree = "<group>"; };
+		0E881BA0D506A479F86728BC /* KangChargeWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KangChargeWidgets.swift; sourceTree = "<group>"; };
+		1392712FB0174318C5775AEC /* AppShortcuts.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = AppShortcuts.xcstrings; sourceTree = "<group>"; };
+		175ED12AD50B14DA7287C08C /* KangChargeiOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = KangChargeiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D0CA1481AB4EEB862E0A87E /* PortViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortViews.swift; sourceTree = "<group>"; };
+		216BEC1FD18B726653BAAA5E /* KangChargeWatchWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KangChargeWatchWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		284B6F19F20C2F31A6F45A5D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		2858C4645825172311B39FC8 /* KangChargeiOSWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = KangChargeiOSWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2A06BC5A25C3762BF5516715 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 		2A9D9132E9CD17AD98E6C47E /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		3337958286C98714A4A815CA /* KangCharge.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KangCharge.entitlements; sourceTree = "<group>"; };
 		373A31607700F255A8B4A5E3 /* KangChargeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KangChargeApp.swift; sourceTree = "<group>"; };
+		3ADE999247959B9B68757167 /* WatchSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSync.swift; sourceTree = "<group>"; };
 		456AAB5ED0B63F30259DAB7F /* KangChargeWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KangChargeWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		46EFCA5B0DCEB0D1F04FE5D2 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		49D18DA306530584E6EB11F1 /* WatchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchModel.swift; sourceTree = "<group>"; };
+		49EC56C4B4719C733C945F1A /* SecureStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStore.swift; sourceTree = "<group>"; };
+		4A5897953AE5BFCD09D1CC82 /* KangChargeWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KangChargeWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		584B4E5F51CD21BBD71FFFBE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		66EA465A2F963C6A314B2D55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		74985B5135FEAE8199E5DD5B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		750B94A928354A0980AA5006 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 		757D865CD8CD4FF56A895834 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7D53D49E7C8A6001C2ADE314 /* WidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViews.swift; sourceTree = "<group>"; };
+		7FC61A52D848E4F9BF185582 /* WatchSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSync.swift; sourceTree = "<group>"; };
+		85E9605E8CC83940F4BC4489 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		85F5FCF66440D12C88FDD301 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		928DE653CA07E988C18C79C4 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		935F432063D9476D17DD516E /* ChargerAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChargerAPI.swift; sourceTree = "<group>"; };
 		9699835DB6E4B9A4375857BC /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
+		9A59305CEC4593099493F08D /* ChargerSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChargerSource.swift; sourceTree = "<group>"; };
+		9E4AE1F48AB9D736AB7814BD /* KangCharge.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KangCharge.entitlements; sourceTree = "<group>"; };
+		A48162E2C84CD3332D21FB60 /* KangChargeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KangChargeApp.swift; sourceTree = "<group>"; };
+		A6ABB95DAB8EE673CC84409D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A9CF9A0499A0F9B463BA16F7 /* KangChargeWatchWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KangChargeWatchWidgets.swift; sourceTree = "<group>"; };
 		ACD3AF6D6BA810233A8688B4 /* CableDiagram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CableDiagram.swift; sourceTree = "<group>"; };
 		B09F9731D56D941E4FCD92E5 /* ChargerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChargerStore.swift; sourceTree = "<group>"; };
 		B191FCE850273F6E1D7C5D3A /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		B24472D6B4619E951D979F59 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B5AF9CC03063CF57E10601DA /* KangChargeWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KangChargeWidget.swift; sourceTree = "<group>"; };
 		B7B988498F97163DBC382D17 /* Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shortcuts.swift; sourceTree = "<group>"; };
+		B85CC41C1AC87F64D319778C /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		BFE79D6356778AF2DBEF5DA4 /* KangChargeWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KangChargeWidget.entitlements; sourceTree = "<group>"; };
+		C2E269F8346EE1CBC48E693D /* Names.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Names.swift; sourceTree = "<group>"; };
+		C315368151E28A1AC363FB2C /* KangChargeWatchWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KangChargeWatchWidget.entitlements; sourceTree = "<group>"; };
+		C332B597759B7D5B4DEFE3A3 /* WidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViews.swift; sourceTree = "<group>"; };
 		C59CA93DA1EB9FD55742D689 /* ControlViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlViews.swift; sourceTree = "<group>"; };
 		CCDC1EBE3A91CCD30118B53A /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		D15687C308990CEB545D0606 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		DBA0BE855E66FD69B9A093DA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E5D9647BEAA6C76295B9AC3E /* Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Style.swift; sourceTree = "<group>"; };
 		EC4C1D37D62E15F50DF53C67 /* DebugSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSnapshot.swift; sourceTree = "<group>"; };
+		EFF9810471605A33B2676B99 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		FD331EFD0CFE0A079F66A191 /* MCPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPClient.swift; sourceTree = "<group>"; };
+		FDBC83EB40C480514D92A333 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
+		FF0089B20B9B1339765222DD /* KangChargeWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KangChargeWatchApp.swift; sourceTree = "<group>"; };
 		FFCBA13C6B1D9D1CF820BFDA /* KangCharge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KangCharge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -92,9 +238,26 @@
 			isa = PBXGroup;
 			children = (
 				FFCBA13C6B1D9D1CF820BFDA /* KangCharge.app */,
+				175ED12AD50B14DA7287C08C /* KangChargeiOS.app */,
+				2858C4645825172311B39FC8 /* KangChargeiOSWidget.appex */,
+				4A5897953AE5BFCD09D1CC82 /* KangChargeWatch.app */,
+				216BEC1FD18B726653BAAA5E /* KangChargeWatchWidget.appex */,
 				456AAB5ED0B63F30259DAB7F /* KangChargeWidget.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		5712BE7798FF02F15253FDF8 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				74985B5135FEAE8199E5DD5B /* Assets.xcassets */,
+				284B6F19F20C2F31A6F45A5D /* Info.plist */,
+				026D2ACB9D12E09354743BD2 /* KangChargeWatch.entitlements */,
+				FF0089B20B9B1339765222DD /* KangChargeWatchApp.swift */,
+				49D18DA306530584E6EB11F1 /* WatchModel.swift */,
+				7FC61A52D848E4F9BF185582 /* WatchSync.swift */,
+			);
+			path = App;
 			sourceTree = "<group>";
 		};
 		5DF7557708B103BBF0777679 /* App */ = {
@@ -114,6 +277,53 @@
 				B7B988498F97163DBC382D17 /* Shortcuts.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		71CA5F48F6EE3F84429E649C /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B85CC41C1AC87F64D319778C /* AppModel.swift */,
+				1392712FB0174318C5775AEC /* AppShortcuts.xcstrings */,
+				85E9605E8CC83940F4BC4489 /* Assets.xcassets */,
+				928DE653CA07E988C18C79C4 /* HomeView.swift */,
+				584B4E5F51CD21BBD71FFFBE /* Info.plist */,
+				9E4AE1F48AB9D736AB7814BD /* KangCharge.entitlements */,
+				A48162E2C84CD3332D21FB60 /* KangChargeApp.swift */,
+				A6ABB95DAB8EE673CC84409D /* SettingsView.swift */,
+				FDBC83EB40C480514D92A333 /* SetupView.swift */,
+				3ADE999247959B9B68757167 /* WatchSync.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		7457BF3D7CA5EAB22FDDEB58 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				01EF6E6ABF0E91886016444E /* Info.plist */,
+				09D7407D355A6D92FA69B850 /* KangChargeWidget.entitlements */,
+				0E881BA0D506A479F86728BC /* KangChargeWidgets.swift */,
+				C332B597759B7D5B4DEFE3A3 /* WidgetViews.swift */,
+			);
+			path = Widget;
+			sourceTree = "<group>";
+		};
+		765DEDC08B8A11C1E2C1856D /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				66EA465A2F963C6A314B2D55 /* Info.plist */,
+				C315368151E28A1AC363FB2C /* KangChargeWatchWidget.entitlements */,
+				A9CF9A0499A0F9B463BA16F7 /* KangChargeWatchWidgets.swift */,
+			);
+			path = Widget;
+			sourceTree = "<group>";
+		};
+		823AC4BACF2B6FADB5A833F6 /* Watch */ = {
+			isa = PBXGroup;
+			children = (
+				5712BE7798FF02F15253FDF8 /* App */,
+				765DEDC08B8A11C1E2C1856D /* Widget */,
+			);
+			path = Watch;
 			sourceTree = "<group>";
 		};
 		A1E237A7ED66B4169E8CA145 /* Shared */ = {
@@ -140,6 +350,30 @@
 			path = Widget;
 			sourceTree = "<group>";
 		};
+		CBE78E7A7BAD48BA4E94E55D /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				71CA5F48F6EE3F84429E649C /* App */,
+				D722D8D03606E1571EFAFA49 /* Common */,
+				7457BF3D7CA5EAB22FDDEB58 /* Widget */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		D722D8D03606E1571EFAFA49 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				9A59305CEC4593099493F08D /* ChargerSource.swift */,
+				750B94A928354A0980AA5006 /* Intents.swift */,
+				EFF9810471605A33B2676B99 /* Localizable.xcstrings */,
+				C2E269F8346EE1CBC48E693D /* Names.swift */,
+				85F5FCF66440D12C88FDD301 /* PrivacyInfo.xcprivacy */,
+				49EC56C4B4719C733C945F1A /* SecureStore.swift */,
+				E5D9647BEAA6C76295B9AC3E /* Style.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
 		E9B59C74E986438B567C5F88 /* Config */ = {
 			isa = PBXGroup;
 			children = (
@@ -153,7 +387,9 @@
 			children = (
 				5DF7557708B103BBF0777679 /* App */,
 				E9B59C74E986438B567C5F88 /* Config */,
+				CBE78E7A7BAD48BA4E94E55D /* iOS */,
 				A1E237A7ED66B4169E8CA145 /* Shared */,
+				823AC4BACF2B6FADB5A833F6 /* Watch */,
 				C38282FDA663D22EE570B953 /* Widget */,
 				33756DD620D40482516BD837 /* Products */,
 			);
@@ -162,6 +398,84 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		07FF57138BC9885D4E64967F /* KangChargeiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7F166ED2A60A6C436BB0CAD1 /* Build configuration list for PBXNativeTarget "KangChargeiOS" */;
+			buildPhases = (
+				7E0941D23A43B11F09AC3382 /* Sources */,
+				8D21D674952C28BD891E85F7 /* Resources */,
+				984A7CE54DF2F19679FD7A56 /* Embed Foundation Extensions */,
+				40F500D1F82D1C3F8C4D7BC4 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C86ADF6F07CF455004E43D11 /* PBXTargetDependency */,
+				D7332B2C1FC10EADB2DBB281 /* PBXTargetDependency */,
+			);
+			name = KangChargeiOS;
+			packageProductDependencies = (
+			);
+			productName = KangChargeiOS;
+			productReference = 175ED12AD50B14DA7287C08C /* KangChargeiOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		41B6CE0257F3B1719A5AF30C /* KangChargeWatchWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6EBD8BC3CE51537D0F70E7E /* Build configuration list for PBXNativeTarget "KangChargeWatchWidget" */;
+			buildPhases = (
+				D6E9C0C7C817A1C1A839A84E /* Sources */,
+				481A33307BDBED4F7C5BB64D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KangChargeWatchWidget;
+			packageProductDependencies = (
+			);
+			productName = KangChargeWatchWidget;
+			productReference = 216BEC1FD18B726653BAAA5E /* KangChargeWatchWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		5727503D259C7BA1A099C7DD /* KangChargeiOSWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A52ED6879FCCC86999149885 /* Build configuration list for PBXNativeTarget "KangChargeiOSWidget" */;
+			buildPhases = (
+				FE773B482D8EC3AD64034CE9 /* Sources */,
+				7C4F82C3838B1E98E9ABF549 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KangChargeiOSWidget;
+			packageProductDependencies = (
+			);
+			productName = KangChargeiOSWidget;
+			productReference = 2858C4645825172311B39FC8 /* KangChargeiOSWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		7893E7646CE6B55DFB9159BB /* KangChargeWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B472C88B5BADF9386F6A20EF /* Build configuration list for PBXNativeTarget "KangChargeWatch" */;
+			buildPhases = (
+				7C8FD844FAC0AE2D803FE115 /* Sources */,
+				2943780E1DD2F19C8FF1FA65 /* Resources */,
+				A214BDCE5F7FCE79DF4A6E5E /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F7AEB5C0B8D2FFEBA63B3F75 /* PBXTargetDependency */,
+			);
+			name = KangChargeWatch;
+			packageProductDependencies = (
+			);
+			productName = KangChargeWatch;
+			productReference = 4A5897953AE5BFCD09D1CC82 /* KangChargeWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 		AEA67BA8E118A2285BB16FB1 /* KangCharge */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58469B9123AF8F484B29B87C /* Build configuration list for PBXNativeTarget "KangCharge" */;
@@ -208,6 +522,22 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					07FF57138BC9885D4E64967F = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = "$(IOS_CODE_SIGN_STYLE)";
+					};
+					41B6CE0257F3B1719A5AF30C = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = "$(IOS_CODE_SIGN_STYLE)";
+					};
+					5727503D259C7BA1A099C7DD = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = "$(IOS_CODE_SIGN_STYLE)";
+					};
+					7893E7646CE6B55DFB9159BB = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = "$(IOS_CODE_SIGN_STYLE)";
+					};
 					AEA67BA8E118A2285BB16FB1 = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
@@ -224,6 +554,7 @@
 			knownRegions = (
 				Base,
 				en,
+				"zh-Hans",
 			);
 			mainGroup = F52EC6E96CFEA4DB13B9E83F;
 			minimizedProjectReferenceProxies = 1;
@@ -234,11 +565,25 @@
 			targets = (
 				AEA67BA8E118A2285BB16FB1 /* KangCharge */,
 				EABA70001D94793AAA93CA21 /* KangChargeWidget */,
+				07FF57138BC9885D4E64967F /* KangChargeiOS */,
+				5727503D259C7BA1A099C7DD /* KangChargeiOSWidget */,
+				7893E7646CE6B55DFB9159BB /* KangChargeWatch */,
+				41B6CE0257F3B1719A5AF30C /* KangChargeWatchWidget */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2943780E1DD2F19C8FF1FA65 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D28F3E4D9DC7CA496C41F3FB /* Assets.xcassets in Resources */,
+				EC9452F76561BCE0AA0C2907 /* Localizable.xcstrings in Resources */,
+				A01509C3F0D436F32D4073DF /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2FD366179BD4E25C4C449384 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -247,9 +592,77 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		481A33307BDBED4F7C5BB64D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6E59BC1AACBC0AD155FF2DD1 /* Localizable.xcstrings in Resources */,
+				1AE83D854FC799E8B5361F58 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7C4F82C3838B1E98E9ABF549 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65279890418F689411F78AD6 /* Localizable.xcstrings in Resources */,
+				E171F1D2911A58112EA149BE /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8D21D674952C28BD891E85F7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9D4FC62B6F145E7985BEBE51 /* AppShortcuts.xcstrings in Resources */,
+				C5EC919C061FB7AD4683494B /* Assets.xcassets in Resources */,
+				A03F6424793072575F3CC5A5 /* Localizable.xcstrings in Resources */,
+				E5A57FFA51D2C3CA229037FD /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		7C8FD844FAC0AE2D803FE115 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B3765557B4E2B7ECAB5D9849 /* ChargerAPI.swift in Sources */,
+				D25F79C65E4AB032E394C85C /* ChargerSource.swift in Sources */,
+				9BDC1816AA12CA9ABCDE52A1 /* Intents.swift in Sources */,
+				13555CC2780F407B4B80BAA6 /* KangChargeWatchApp.swift in Sources */,
+				36E0ED0E40E94BB5EB4D7C8A /* MCPClient.swift in Sources */,
+				FB64F9CE79E652FEAD138424 /* Models.swift in Sources */,
+				13525406680EB0DA5DB3E8DB /* Names.swift in Sources */,
+				A1CDB2FF28DB1BB761C2510F /* SecureStore.swift in Sources */,
+				16B60E14A929D9AB61BA1A94 /* Style.swift in Sources */,
+				D164D1DC188E31B5395BF2C8 /* WatchModel.swift in Sources */,
+				0B727BDFD13AB9B995B788E2 /* WatchSync.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7E0941D23A43B11F09AC3382 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CFDC6AD6F734361AE051620 /* AppModel.swift in Sources */,
+				88F8D34964090108BDF46D73 /* ChargerAPI.swift in Sources */,
+				3F407B237D5D72B4CE8DF36B /* ChargerSource.swift in Sources */,
+				5A6FF9421335B686E48D81E9 /* HomeView.swift in Sources */,
+				928486FFDE6451C6ACD8A591 /* Intents.swift in Sources */,
+				AA4284CB343F9484FD95F286 /* KangChargeApp.swift in Sources */,
+				5B06AC3072499D56F154AA49 /* MCPClient.swift in Sources */,
+				8852E7491A11DDDEB5EBFCAE /* Models.swift in Sources */,
+				B7FFFFB199B3563E050A1BBF /* Names.swift in Sources */,
+				19154115319A52FCDABC1BAE /* SecureStore.swift in Sources */,
+				5E9C9AE0F519B66E299C4250 /* SettingsView.swift in Sources */,
+				39E08BC227133B2E210B30F6 /* SetupView.swift in Sources */,
+				A6DA0799CACB9E84078A185E /* Style.swift in Sources */,
+				6D14743D76C80D6BC956703B /* WatchSync.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		96263394C77DE129214B5561 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -273,6 +686,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D6E9C0C7C817A1C1A839A84E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				692AFF010FA7B39BCE1D3125 /* ChargerAPI.swift in Sources */,
+				E8FCA40F7E034B732CA4CE44 /* ChargerSource.swift in Sources */,
+				7F53A95CB50C68F9323DF172 /* Intents.swift in Sources */,
+				769CB10C4C6F75EB58404AAA /* KangChargeWatchWidgets.swift in Sources */,
+				19E93E3EC285670373C7099C /* MCPClient.swift in Sources */,
+				06CAD0ED6EF5938FAE275BA9 /* Models.swift in Sources */,
+				00DEF7C197B9603408866102 /* Names.swift in Sources */,
+				FA44D12C6494D8C953AF8A04 /* SecureStore.swift in Sources */,
+				8A3C0A0262348865DE7AE405 /* Style.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F0209293610AC1BD554A6102 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -288,6 +717,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FE773B482D8EC3AD64034CE9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B3F073DAC6ECA0B75F91BADA /* ChargerAPI.swift in Sources */,
+				7FD9212E30C171E71E83B870 /* ChargerSource.swift in Sources */,
+				A3EF25ECC5804ADBFAE2A333 /* Intents.swift in Sources */,
+				2E5FECD22B796DEA2AAEC793 /* KangChargeWidgets.swift in Sources */,
+				63835587F2C54BF9F45BB010 /* MCPClient.swift in Sources */,
+				EF40A219D522E172222D7D6B /* Models.swift in Sources */,
+				451E39088B4BAAF77EED7E5F /* Names.swift in Sources */,
+				66509B8E5E430B4765C02927 /* SecureStore.swift in Sources */,
+				ED0A60467FD998CEA8EC5139 /* Style.swift in Sources */,
+				BB82B86B854CD289EDB4E238 /* WidgetViews.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -295,6 +741,21 @@
 			isa = PBXTargetDependency;
 			target = EABA70001D94793AAA93CA21 /* KangChargeWidget */;
 			targetProxy = B5AC7BD0382CD174ABA53933 /* PBXContainerItemProxy */;
+		};
+		C86ADF6F07CF455004E43D11 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5727503D259C7BA1A099C7DD /* KangChargeiOSWidget */;
+			targetProxy = 5F5376FA6E6F32290664680E /* PBXContainerItemProxy */;
+		};
+		D7332B2C1FC10EADB2DBB281 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7893E7646CE6B55DFB9159BB /* KangChargeWatch */;
+			targetProxy = 0C70480E460DEBBEC2F9DDA2 /* PBXContainerItemProxy */;
+		};
+		F7AEB5C0B8D2FFEBA63B3F75 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41B6CE0257F3B1719A5AF30C /* KangChargeWatchWidget */;
+			targetProxy = 1803F59D06040DA9E4E0F454 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -372,16 +833,89 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		2E3E4567762E5843D668610E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Watch/Widget/KangChargeWatchWidget.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = "$(IOS_CODE_SIGN_STYLE)";
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = Watch/Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.watchkitapp.widget";
+				PRODUCT_NAME = KangChargeWatchWidget;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Debug;
+		};
+		435704E1258230B02F7B9236 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Watch/Widget/KangChargeWatchWidget.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = "$(IOS_CODE_SIGN_STYLE)";
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = Watch/Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.watchkitapp.widget";
+				PRODUCT_NAME = KangChargeWatchWidget;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Release;
+		};
+		49A3B099357A4E9CEE5F3A36 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = iOS/Widget/KangChargeWidget.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = "$(IOS_CODE_SIGN_STYLE)";
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = iOS/Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.widget";
+				PRODUCT_NAME = KangChargeWidget;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -422,6 +956,26 @@
 			};
 			name = Release;
 		};
+		8EFA8B03183E07CC5A699C22 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Watch/App/KangChargeWatch.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = "$(IOS_CODE_SIGN_STYLE)";
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = Watch/App/Info.plist;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.watchkitapp";
+				PRODUCT_NAME = "Kang Charge";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Release;
+		};
 		8F5B75E27B77CC934926A0AE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -440,6 +994,30 @@
 				SDKROOT = macosx;
 			};
 			name = Debug;
+		};
+		908825606EE89F2A6852C885 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iOS/App/KangCharge.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = "$(IOS_CODE_SIGN_STYLE)";
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = iOS/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge";
+				PRODUCT_NAME = "Kang Charge";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
 		};
 		A32B151B1CA5C3B7E52EDF06 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -490,15 +1068,84 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		AE86C4B4BC56D1C702C596A1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Watch/App/KangChargeWatch.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = "$(IOS_CODE_SIGN_STYLE)";
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = Watch/App/Info.plist;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.watchkitapp";
+				PRODUCT_NAME = "Kang Charge";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Debug;
+		};
+		D33074AECBA8D03B91A0EB35 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iOS/App/KangCharge.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = "$(IOS_CODE_SIGN_STYLE)";
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = iOS/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge";
+				PRODUCT_NAME = "Kang Charge";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		EA3AF6937BBE2BD1CF45A95B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = iOS/Widget/KangChargeWidget.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = "$(IOS_CODE_SIGN_STYLE)";
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = iOS/Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.widget";
+				PRODUCT_NAME = KangChargeWidget;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -528,6 +1175,42 @@
 			buildConfigurations = (
 				8F5B75E27B77CC934926A0AE /* Debug */,
 				7D60CC9255CBA7B186D2A193 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7F166ED2A60A6C436BB0CAD1 /* Build configuration list for PBXNativeTarget "KangChargeiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D33074AECBA8D03B91A0EB35 /* Debug */,
+				908825606EE89F2A6852C885 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A52ED6879FCCC86999149885 /* Build configuration list for PBXNativeTarget "KangChargeiOSWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49A3B099357A4E9CEE5F3A36 /* Debug */,
+				EA3AF6937BBE2BD1CF45A95B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B472C88B5BADF9386F6A20EF /* Build configuration list for PBXNativeTarget "KangChargeWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE86C4B4BC56D1C702C596A1 /* Debug */,
+				8EFA8B03183E07CC5A699C22 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F6EBD8BC3CE51537D0F70E7E /* Build configuration list for PBXNativeTarget "KangChargeWatchWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2E3E4567762E5843D668610E /* Debug */,
+				435704E1258230B02F7B9236 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

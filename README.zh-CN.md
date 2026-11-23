@@ -88,6 +88,21 @@ cp -R "build/DD/Build/Products/Release/Kang Charge.app" /Applications/
 
 在桌面空白处右键 → **编辑小组件**，搜索「Kang Charge」，拖到桌面即可。小组件大约每 5 分钟刷新一次；打开 App 时会更快同步。
 
+## iPhone 与 Apple Watch（测试版）
+
+`ios` 分支新增原生 iPhone App（iOS 17+）和 Apple Watch App（watchOS 10+）。iOS 版界面以英文为主，可切换简体中文。
+
+- **iPhone App**：实时总功率和近期趋势图、每个端口的开关、充电模式和温控模式。关闭正在充电的端口前会先确认。
+- **主屏小组件**：小、中、大三种。大尺寸里每个端口都有开关，不用打开 App 就能开关端口。
+- **锁屏小组件**：圆形功率仪表、矩形摘要、单行文字。
+- **Apple Watch**：功率环和端口开关，以及表盘组件（圆形、角落、矩形、单行）。MCP 地址会从 iPhone 自动同步到手表。
+- **示例数据**：没有充电器也能体验全部功能。
+- **快捷指令 / Siri**：开关端口、切换充电模式、刷新、查询当前功率。
+
+受 iOS 限制，小组件大约每 15 分钟自动刷新一次；打开 App 或点小组件上的开关会立即刷新。iPhone 上 MCP 地址存在钥匙串里，只和本 App 的小组件共享。
+
+构建方法：按上文在 `Config/Local.xcconfig` 设置 `DEVELOPMENT_TEAM` 和 `BUNDLE_ID_PREFIX`，运行 `xcodegen generate`，打开工程运行 **KangChargeiOS** scheme（手表 App 已内嵌）。iOS 相关 target 默认自动签名，可用 `IOS_CODE_SIGN_STYLE` 覆盖。需要在开发者账号里创建 App Group `group.<前缀>.kangcharge` 和 `group.<前缀>.kangcharge.watch`。
+
 ## 隐私与安全
 
 - MCP 地址里包含**设备序列号和访问令牌**，拿到它的人可以控制你的小电拼。请当作密码对待，不要截图分享，也不要提交到任何仓库。
@@ -122,6 +137,10 @@ Shared/            App 与小组件共用
   Theme.swift        配色与通用组件
 App/               主窗口、菜单栏、设置、首次设置、轮询状态
 Widget/            TimelineProvider 与三种尺寸的小组件
+iOS/App/           iPhone App（设置、首页、后台刷新）
+iOS/Widget/        iPhone 主屏与锁屏小组件
+iOS/Common/        iPhone App、小组件和手表共用的代码（数据源、快捷指令、文案）
+Watch/             Apple Watch App 与表盘组件
 Config/            xcconfig：签名与包名（个人配置在 Local.xcconfig）
 scripts/           图标生成、README 截图、发布脚本
 ```

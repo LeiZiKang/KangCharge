@@ -36,6 +36,21 @@ struct MachineFacts: Codable, Hashable {
     }
 
     func port(_ index: Int) -> Port? { ports.first { $0.index == index } }
+
+    /// Model name in the UI language. macOS keeps its Chinese-first behaviour.
+    var localizedName: String {
+        #if os(macOS)
+        return friendlyNameZh ?? friendlyNameEn ?? "小电拼"
+        #else
+        return (Locale.prefersChinese ? friendlyNameZh ?? friendlyNameEn : friendlyNameEn ?? friendlyNameZh) ?? "CoCan"
+        #endif
+    }
+}
+
+extension Locale {
+    static var prefersChinese: Bool {
+        Bundle.main.preferredLocalizations.first?.hasPrefix("zh") == true
+    }
 }
 
 struct PortDetail: Codable, Hashable, Identifiable {
@@ -57,7 +72,13 @@ struct PortDetail: Codable, Hashable, Identifiable {
     var voltage: Double { (voutMv ?? 0) / 1000 }
     var current: Double { (ioutMa ?? 0) / 1000 }
     var power: Double { (voutMv ?? 0) * (ioutMa ?? 0) / 1_000_000 }
-    var deviceName: String? { deviceNameZh ?? deviceNameEn }
+    var deviceName: String? {
+        #if os(macOS)
+        return deviceNameZh ?? deviceNameEn
+        #else
+        return Locale.prefersChinese ? deviceNameZh ?? deviceNameEn : deviceNameEn ?? deviceNameZh
+        #endif
+    }
 }
 
 struct PortDetailsResponse: Codable { var ports: [PortDetail] }

@@ -11,3 +11,6 @@ BUNDLE_ID_PREFIX = com.yourname
 // use manual signing with the "Apple Development" certificate in your keychain:
 // CODE_SIGN_STYLE = Manual
 // PROVISIONING_PROFILE_SPECIFIER =
+
+// iOS targets use IOS_CODE_SIGN_STYLE (Automatic by default), needed for device/App Store provisioning.
+// IOS_CODE_SIGN_STYLE = Automatic

@@ -6,4 +6,5 @@ DEVELOPMENT_TEAM =
 CODE_SIGN_STYLE = Automatic
 CODE_SIGN_IDENTITY = Apple Development
 
+IOS_CODE_SIGN_STYLE = Automatic
 #include? "Local.xcconfig"

@@ -24,11 +24,19 @@ enum AppConfig {
     /// The personal MCP SSE endpoint copied from the CANDYSIGN app. It embeds the
     /// device serial and an access token, so it is only ever stored on this Mac.
     static var serverURL: URL? {
+        #if os(macOS)
         defaults.string(forKey: Key.serverURL).flatMap(validatedServerURL)
+        #else
+        SecureStore.string(forKey: Key.serverURL).flatMap(validatedServerURL)
+        #endif
     }
 
     static func setServerURL(_ url: URL?) {
+        #if os(macOS)
         defaults.set(url?.absoluteString, forKey: Key.serverURL)
+        #else
+        SecureStore.set(url?.absoluteString, forKey: Key.serverURL)
+        #endif
     }
 
     static func validatedServerURL(_ raw: String) -> URL? {
@@ -41,7 +49,11 @@ enum AppConfig {
     /// Name shown in the UI: the user's own nickname, else the model name reported by the device.
     static var deviceName: String {
         if let custom = customDeviceName { return custom }
+        #if os(macOS)
         return SnapshotStore.loadFacts()?.friendlyNameZh ?? "小电拼"
+        #else
+        return SnapshotStore.loadFacts()?.localizedName ?? "CoCan"
+        #endif
     }
 
     static var customDeviceName: String? {
@@ -209,7 +221,7 @@ final class ChargerAPI: @unchecked Sendable {
         }
         var snapshot = ChargerSnapshot(
             deviceName: AppConfig.deviceName,
-            modelName: facts.friendlyNameZh ?? facts.friendlyNameEn ?? "小电拼",
+            modelName: facts.localizedName,
             maxPower: facts.maxPowerBudget,
             ports: ports,
             temperatureMode: temperatureMode ?? previous?.temperatureMode,

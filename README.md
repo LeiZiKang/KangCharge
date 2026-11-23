@@ -88,6 +88,21 @@ You can change the URL or disconnect later in **Kang Charge → Settings (⌘,)*
 
 Right-click an empty area of the desktop → **Edit Widgets**, search for "Kang Charge" and drag a widget onto the desktop. Widgets refresh about every 5 minutes, and sooner while the app is open.
 
+## iPhone & Apple Watch (beta)
+
+The `ios` branch adds a native iPhone app (iOS 17+) and an Apple Watch app (watchOS 10+). The iOS UI is English with Simplified Chinese.
+
+- **iPhone app**: live total power with a short history chart, a switch for every port, charging mode and thermal mode. Turning off a charging port asks first.
+- **Home Screen widgets**: small, medium and large. The large widget has a switch for every port, so you can turn ports on and off without opening the app.
+- **Lock Screen widgets**: circular power gauge, rectangular summary and a one-line inline widget.
+- **Apple Watch**: a power ring and port switches, plus complications (circular, corner, rectangular, inline). The watch gets the MCP URL from your iPhone automatically.
+- **Try with Sample Data**: explore everything without a charger.
+- **Shortcuts / Siri**: turn a port on or off, set the charging mode, refresh, and ask for the current power.
+
+Widgets refresh about every 15 minutes (an iOS limit), and immediately when you open the app or tap a widget switch. On iPhone the MCP URL is stored in the Keychain, shared only with the app's own widget.
+
+To build: set `DEVELOPMENT_TEAM` and `BUNDLE_ID_PREFIX` in `Config/Local.xcconfig` as above, run `xcodegen generate`, then open the project and run the **KangChargeiOS** scheme (the watch app is embedded). iOS targets sign automatically by default; override with `IOS_CODE_SIGN_STYLE`. The App Groups `group.<prefix>.kangcharge` and `group.<prefix>.kangcharge.watch` must exist in your developer account.
+
 ## Privacy & security
 
 - The MCP URL contains your **device serial number and access token**. Anyone who has it can control your charger. Treat it like a password: don't share screenshots of it and never commit it to a repository.
@@ -122,6 +137,10 @@ Shared/            Code shared by the app and the widget
   Theme.swift        Colors and shared components
 App/               Main window, menu bar, settings, first-run setup, polling state
 Widget/            TimelineProvider and the three widget sizes
+iOS/App/           iPhone app (setup, home, settings, background refresh)
+iOS/Widget/        iPhone Home Screen and Lock Screen widgets
+iOS/Common/        Code shared by the iPhone app, widgets and watch (data source, intents, strings)
+Watch/             Apple Watch app and complications
 Config/            xcconfig files: signing and bundle IDs (personal values go in Local.xcconfig)
 scripts/           Icon generator, README screenshots, release script
 ```

@@ -128,20 +128,19 @@ cp -R "build/DD/Build/Products/Release/Kang Charge.app" /Applications/
 几个需要换算的字段：端口功率 = `vout_mv × iout_ma ÷ 10⁶` W；`status_bitmask` 的第 n−1 位表示端口 n 是否开启；PD 的 `operating_voltage` / `operating_current` 单位是 10 mV / 10 mA。
 
 ```
-Shared/            App 与小组件共用
-  MCPClient.swift    SSE 传输、JSON-RPC 配对、重连
-  ChargerAPI.swift   类型化的工具封装、本地配置与快照缓存
-  Models.swift       返回结构与模式定义
-  Intents.swift      App Intents（小组件按钮与快捷指令）
-  CableDiagram.swift 端口芯片 + 线缆 + 充电器示意图
-  Theme.swift        配色与通用组件
-App/               主窗口、菜单栏、设置、首次设置、轮询状态
-Widget/            TimelineProvider 与三种尺寸的小组件
+Shared/Core/       所有平台共用的逻辑（macOS、iOS、watchOS 与小组件）
+  MCPClient.swift    SSE 传输、JSON-RPC 请求匹配、自动重连
+  ChargerAPI.swift   工具调用封装、本地设置与快照缓存
+  Models.swift       响应类型与模式定义
+Shared/Mobile/     iPhone、手表及其小组件共用（数据源、快捷指令、钥匙串、文案）
+macOS/App/         Mac 主窗口、菜单栏、设置、首次设置、轮询状态
+macOS/Common/      Mac App 与 Mac 小组件共用：快捷指令、线缆示意图、主题
 iOS/App/           iPhone App（设置、首页、后台刷新）
-iOS/Widget/        iPhone 主屏与锁屏小组件
-iOS/Common/        iPhone App、小组件和手表共用的代码（数据源、快捷指令、文案）
-Watch/             Apple Watch App 与表盘组件
-Config/            xcconfig：签名与包名（个人配置在 Local.xcconfig）
+watchOS/App/       Apple Watch App
+Widgets/macOS/     Mac 桌面小组件（三种尺寸）
+Widgets/iOS/       iPhone 主屏与锁屏小组件
+Widgets/watchOS/   表盘组件
+Config/            xcconfig：签名与 Bundle ID（个人配置写在 Local.xcconfig）
 scripts/           图标生成、README 截图、发布脚本
 ```
 

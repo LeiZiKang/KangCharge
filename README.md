@@ -128,19 +128,18 @@ The charger connects to CANDYSIGN's cloud over Wi-Fi (MQTT). The cloud's `ionbri
 A few fields need converting: port power = `vout_mv × iout_ma ÷ 10⁶` W; bit n−1 of `status_bitmask` means port n is on; PD `operating_voltage` / `operating_current` are in units of 10 mV / 10 mA.
 
 ```
-Shared/            Code shared by the app and the widget
+Shared/Core/       Logic shared by every platform (macOS, iOS, watchOS, widgets)
   MCPClient.swift    SSE transport, JSON-RPC request matching, reconnects
   ChargerAPI.swift   Typed tool wrappers, local settings and snapshot cache
   Models.swift       Response types and mode definitions
-  Intents.swift      App Intents (widget buttons and Shortcuts)
-  CableDiagram.swift Port chips + cables + charger diagram
-  Theme.swift        Colors and shared components
-App/               Main window, menu bar, settings, first-run setup, polling state
-Widget/            TimelineProvider and the three widget sizes
+Shared/Mobile/     Shared by iPhone, watch and their widgets (data source, intents, Keychain, strings)
+macOS/App/         Mac main window, menu bar, settings, first-run setup, polling state
+macOS/Common/      Mac app + Mac widget: intents, cable diagram, theme
 iOS/App/           iPhone app (setup, home, settings, background refresh)
-iOS/Widget/        iPhone Home Screen and Lock Screen widgets
-iOS/Common/        Code shared by the iPhone app, widgets and watch (data source, intents, strings)
-Watch/             Apple Watch app and complications
+watchOS/App/       Apple Watch app
+Widgets/macOS/     Mac desktop widgets (three sizes)
+Widgets/iOS/       iPhone Home Screen and Lock Screen widgets
+Widgets/watchOS/   Watch complications
 Config/            xcconfig files: signing and bundle IDs (personal values go in Local.xcconfig)
 scripts/           Icon generator, README screenshots, release script
 ```

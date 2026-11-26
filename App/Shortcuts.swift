@@ -1,9 +1,24 @@
 import AppIntents
 
-struct ChargerShortcuts: AppShortcutsProvider {
+struct KangChargeShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
-        AppShortcut(intent: RefreshChargerIntent(), phrases: ["刷新 \(.applicationName)"], shortTitle: "刷新状态", systemImageName: "arrow.clockwise")
-        AppShortcut(intent: SetChargingStrategyIntent(), phrases: ["用 \(.applicationName) 切换充电策略"], shortTitle: "切换策略", systemImageName: "bolt.fill")
-        AppShortcut(intent: SetPortPowerIntent(), phrases: ["用 \(.applicationName) 开关端口"], shortTitle: "开关端口", systemImageName: "powerplug.fill")
+        AppShortcut(
+            intent: RefreshChargerIntent(),
+            phrases: ["Refresh \(.applicationName)", "Check power in \(.applicationName)"],
+            shortTitle: "Refresh Charger",
+            systemImageName: "arrow.clockwise"
+        )
+        AppShortcut(
+            intent: SetChargingStrategyIntent(),
+            phrases: ["Set charging mode in \(.applicationName)"],
+            shortTitle: "Set Charging Mode",
+            systemImageName: "bolt.fill"
+        )
+        AppShortcut(
+            intent: SetPortPowerIntent(),
+            phrases: ["Toggle port in \(.applicationName)"],
+            shortTitle: "Toggle Port",
+            systemImageName: "power"
+        )
     }
 }

@@ -1,6 +1,5 @@
 #!/bin/bash
-# Renders README screenshots from sample data (no device needed) into docs/screenshots.
-# Builds a Debug copy without the App Sandbox so the images can be written outside the container.
+# Renders light & dark README/website screenshots from sample data (no device needed).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="$ROOT/docs/screenshots"
@@ -11,18 +10,26 @@ xcodebuild -project "$ROOT/KangCharge.xcodeproj" -scheme KangCharge -configurati
   -derivedDataPath "$DD" CODE_SIGN_ENTITLEMENTS=Config/Screenshots.entitlements \
   CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= build -quiet
 
-APP="$DD/Build/Products/Debug/Kang Charge.app"
+APP="$DD/Build/Products/Debug/SugarWatt.app"
 TMP="$(mktemp -d)"
-pkill -f "Kang Charge.app/Contents/MacOS" || true
-"$APP/Contents/MacOS/Kang Charge" -kcSnapshot YES -kcDemo YES -kcSnapshotDir "$TMP" &
+pkill -f "SugarWatt.app/Contents/MacOS" || true
+"$APP/Contents/MacOS/SugarWatt" -kcSnapshot YES -kcDemo YES -kcSnapshotDir "$TMP" &
 PID=$!
-for _ in $(seq 1 60); do [ -f "$TMP/widget-large.png" ] && break; sleep 1; done
+for _ in $(seq 1 40); do [ -f "$TMP/widget-heatmap-medium-dark.png" ] && break; sleep 0.5; done
 sleep 1
 kill "$PID" 2>/dev/null || true
 
 mkdir -p "$OUT"
-for name in dashboard port-sheet menubar widget-small widget-medium widget-large; do
-  [ -f "$TMP/$name.png" ] && cp "$TMP/$name.png" "$OUT/$name.png"
+for f in "$TMP"/*.png; do
+  [ -f "$f" ] && cp "$f" "$OUT/$(basename "$f")"
 done
+# Keep canonical aliases for README compatibility
+[ -f "$OUT/dashboard-light.png" ] && cp "$OUT/dashboard-light.png" "$OUT/dashboard.png"
+[ -f "$OUT/menubar-light.png" ] && cp "$OUT/menubar-light.png" "$OUT/menubar.png"
+[ -f "$OUT/widget-small-light.png" ] && cp "$OUT/widget-small-light.png" "$OUT/widget-small.png"
+[ -f "$OUT/widget-medium-light.png" ] && cp "$OUT/widget-medium-light.png" "$OUT/widget-medium.png"
+[ -f "$OUT/widget-large-light.png" ] && cp "$OUT/widget-large-light.png" "$OUT/widget-large.png"
+
 rm -rf "$TMP"
 echo "Screenshots written to $OUT"
+ls -lh "$OUT"

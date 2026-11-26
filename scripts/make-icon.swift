@@ -1,96 +1,198 @@
 import AppKit
+import CoreGraphics
 
-// Renders the Kang Charge app icon: candy gradient squircle, a stylised
-// CoCan charger body with five ports, and a glowing bolt.
-let out = URL(fileURLWithPath: CommandLine.arguments[1])
-try? FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
+/// Generates the minimalist SugarWatt app icon:
+/// a warm ceramic-white square with a crisp, hardware-inspired vermilion-orange lightning bolt.
+/// Outputs macOS iconset PNGs, a 1024px preview, and full-bleed 1024px PNG for iOS/watchOS.
 
-func color(_ hex: UInt32, _ a: CGFloat = 1) -> NSColor {
-    NSColor(srgbRed: CGFloat((hex >> 16) & 0xff) / 255, green: CGFloat((hex >> 8) & 0xff) / 255, blue: CGFloat(hex & 0xff) / 255, alpha: a)
-}
+func renderIcon(size px: Int, macOSGrid: Bool) -> NSBitmapImageRep {
+    let rep = NSBitmapImageRep(
+        bitmapDataPlanes: nil,
+        pixelsWide: px,
+        pixelsHigh: px,
+        bitsPerSample: 8,
+        samplesPerPixel: 4,
+        hasAlpha: true,
+        isPlanar: false,
+        colorSpaceName: .deviceRGB,
+        bytesPerRow: 0,
+        bitsPerPixel: 0
+    )!
+    rep.size = NSSize(width: px, height: px)
 
-func render(_ pixels: Int) -> Data {
-    let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: pixels, pixelsHigh: pixels, bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
     NSGraphicsContext.saveGraphicsState()
     NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
     let ctx = NSGraphicsContext.current!.cgContext
-    ctx.scaleBy(x: CGFloat(pixels) / 1024, y: CGFloat(pixels) / 1024)
+    let s = CGFloat(px)
+    let colorSpace = CGColorSpaceCreateDeviceRGB()
 
-    // Background squircle with drop shadow (macOS icon grid: 824pt body inset 100).
-    let body = NSRect(x: 100, y: 100, width: 824, height: 824)
-    let squircle = NSBezierPath(roundedRect: body, xRadius: 185, yRadius: 185)
-    ctx.saveGState()
-    ctx.setShadow(offset: CGSize(width: 0, height: -12), blur: 28, color: NSColor.black.withAlphaComponent(0.35).cgColor)
-    color(0xFF4719).setFill()
-    squircle.fill()
-    ctx.restoreGState()
-    NSGradient(colors: [color(0xFFB23F), color(0xFF4719), color(0xF0266A)], atLocations: [0, 0.5, 1], colorSpace: .sRGB)!
-        .draw(in: squircle, angle: -60)
-    // Soft top highlight.
-    ctx.saveGState()
-    squircle.addClip()
-    NSGradient(colors: [NSColor.white.withAlphaComponent(0.28), NSColor.white.withAlphaComponent(0)])!
-        .draw(fromCenter: NSPoint(x: 330, y: 900), radius: 0, toCenter: NSPoint(x: 330, y: 900), radius: 620, options: [])
-    ctx.restoreGState()
+    ctx.clear(CGRect(x: 0, y: 0, width: s, height: s))
 
-    // Charger body (the "can").
-    let can = NSRect(x: 262, y: 222, width: 500, height: 580)
-    let canPath = NSBezierPath(roundedRect: can, xRadius: 120, yRadius: 120)
-    ctx.saveGState()
-    ctx.setShadow(offset: CGSize(width: 0, height: -18), blur: 40, color: NSColor(srgbRed: 0.45, green: 0.05, blue: 0.1, alpha: 0.45).cgColor)
-    NSColor.white.setFill()
-    canPath.fill()
-    ctx.restoreGState()
-    NSGradient(colors: [NSColor.white, color(0xFFEDE6)])!.draw(in: canPath, angle: -90)
+    // Card bounds: macOS uses ~82.4% squircle with drop shadow; iOS/watchOS uses full-bleed 100%.
+    let inset: CGFloat = macOSGrid ? s * 0.088 : 0
+    let cardRect = CGRect(x: inset, y: inset, width: s - inset * 2, height: s - inset * 2)
+    let cornerRadius: CGFloat = macOSGrid ? cardRect.width * 0.2237 : 0
+    let cardPath = CGPath(roundedRect: cardRect, cornerWidth: cornerRadius, cornerHeight: cornerRadius, transform: nil)
 
-    // Screen.
-    let screen = NSBezierPath(roundedRect: NSRect(x: 322, y: 470, width: 380, height: 270), xRadius: 58, yRadius: 58)
-    NSGradient(colors: [color(0x2A1B1F), color(0x16161C)])!.draw(in: screen, angle: -90)
-
-    // Bolt on screen.
-    let bolt = NSBezierPath()
-    bolt.move(to: NSPoint(x: 540, y: 712))
-    bolt.line(to: NSPoint(x: 440, y: 590))
-    bolt.line(to: NSPoint(x: 512, y: 590))
-    bolt.line(to: NSPoint(x: 478, y: 498))
-    bolt.line(to: NSPoint(x: 590, y: 626))
-    bolt.line(to: NSPoint(x: 516, y: 626))
-    bolt.close()
-    ctx.saveGState()
-    ctx.setShadow(offset: .zero, blur: 30, color: color(0xFF7A2F).cgColor)
-    NSGradient(colors: [color(0xFFD04A), color(0xFF5A1F)])!.draw(in: bolt, angle: -90)
-    ctx.restoreGState()
-
-    // Five ports: A (wide) + C1–C4 (pills), coloured like the app.
-    let portColors: [UInt32] = [0x29C7A3, 0xFF7329, 0xFF4D80, 0x9E66FF, 0x3D8FFF]
-    let slots: [NSRect] = [
-        NSRect(x: 330, y: 380, width: 150, height: 44),
-        NSRect(x: 520, y: 380, width: 64, height: 44),
-        NSRect(x: 612, y: 380, width: 64, height: 44),
-        NSRect(x: 420, y: 300, width: 64, height: 44),
-        NSRect(x: 540, y: 300, width: 64, height: 44),
-    ]
-    for (i, slot) in slots.enumerated() {
-        let pill = NSBezierPath(roundedRect: slot, xRadius: 22, yRadius: i == 0 ? 10 : 22)
-        color(0x2A1B1F).setFill()
-        pill.fill()
-        let dot = NSBezierPath(roundedRect: slot.insetBy(dx: 14, dy: 15), xRadius: 8, yRadius: 8)
-        color(portColors[i]).setFill()
-        dot.fill()
+    // Soft macOS elevation shadow
+    if macOSGrid {
+        ctx.saveGState()
+        ctx.setShadow(offset: CGSize(width: 0, height: -s * 0.018), blur: s * 0.035, color: CGColor(red: 0, green: 0, blue: 0, alpha: 0.22))
+        ctx.addPath(cardPath)
+        ctx.setFillColor(CGColor(red: 0.97, green: 0.965, blue: 0.953, alpha: 1))
+        ctx.fillPath()
+        ctx.restoreGState()
     }
 
+    // Warm ceramic off-white surface (#FCFBF8 -> #ECEAE3)
+    ctx.saveGState()
+    ctx.addPath(cardPath)
+    ctx.clip()
+
+    let bgColors = [
+        CGColor(red: 0.992, green: 0.988, blue: 0.978, alpha: 1.0),
+        CGColor(red: 0.935, green: 0.927, blue: 0.908, alpha: 1.0)
+    ] as CFArray
+    let bgGrad = CGGradient(colorsSpace: colorSpace, colors: bgColors, locations: [0.0, 1.0])!
+    ctx.drawLinearGradient(
+        bgGrad,
+        start: CGPoint(x: cardRect.midX, y: cardRect.maxY),
+        end: CGPoint(x: cardRect.midX, y: cardRect.minY),
+        options: []
+    )
+
+    // Subtle top ceramic sheen highlight
+    let sheenColors = [
+        CGColor(red: 1, green: 1, blue: 1, alpha: 0.55),
+        CGColor(red: 1, green: 1, blue: 1, alpha: 0.0)
+    ] as CFArray
+    let sheenGrad = CGGradient(colorsSpace: colorSpace, colors: sheenColors, locations: [0.0, 1.0])!
+    ctx.drawLinearGradient(
+        sheenGrad,
+        start: CGPoint(x: cardRect.midX, y: cardRect.maxY),
+        end: CGPoint(x: cardRect.midX, y: cardRect.minY + cardRect.height * 0.52),
+        options: []
+    )
+
+    // Razor-fine anodized inner rim
+    if macOSGrid {
+        ctx.addPath(cardPath)
+        ctx.setStrokeColor(CGColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 0.07))
+        ctx.setLineWidth(max(1.0, s * 0.004))
+        ctx.strokePath()
+    }
+
+    // Centered genuine Apple SF Symbol `bolt.fill` in hardware vermilion-orange (#E84C24)
+    let pointSize = cardRect.height * 0.50
+    let symConfig = NSImage.SymbolConfiguration(pointSize: pointSize, weight: .semibold)
+    if let symImage = NSImage(systemSymbolName: "bolt.fill", accessibilityDescription: nil)?
+        .withSymbolConfiguration(symConfig)
+    {
+        // Rasterize the SF Symbol into an alpha mask at exact target pixel resolution
+        let symSize = symImage.size
+        let targetH = cardRect.height * 0.56
+        let aspect = symSize.width / max(symSize.height, 1)
+        let drawW = targetH * aspect
+        let drawH = targetH
+        let drawRect = CGRect(
+            x: cardRect.midX - drawW / 2.0,
+            y: cardRect.midY - drawH / 2.0,
+            width: drawW,
+            height: drawH
+        )
+
+        let maskRep = NSBitmapImageRep(
+            bitmapDataPlanes: nil,
+            pixelsWide: px,
+            pixelsHigh: px,
+            bitsPerSample: 8,
+            samplesPerPixel: 4,
+            hasAlpha: true,
+            isPlanar: false,
+            colorSpaceName: .deviceRGB,
+            bytesPerRow: 0,
+            bitsPerPixel: 0
+        )!
+        maskRep.size = NSSize(width: px, height: px)
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: maskRep)
+        NSColor.black.set()
+        symImage.draw(in: drawRect, from: .zero, operation: .sourceOver, fraction: 1.0)
+        NSGraphicsContext.restoreGraphicsState()
+
+        if let maskCG = maskRep.cgImage {
+            let fullRect = CGRect(x: 0, y: 0, width: s, height: s)
+
+            // Subtle warm ambient drop shadow under bolt
+            ctx.saveGState()
+            ctx.setShadow(
+                offset: CGSize(width: 0, height: -s * 0.012),
+                blur: s * 0.026,
+                color: CGColor(red: 0.85, green: 0.24, blue: 0.08, alpha: 0.24)
+            )
+            ctx.beginTransparencyLayer(auxiliaryInfo: nil)
+            ctx.clip(to: fullRect, mask: maskCG)
+            ctx.setFillColor(CGColor(red: 0.91, green: 0.30, blue: 0.14, alpha: 1.0))
+            ctx.fill(drawRect.insetBy(dx: -4, dy: -4))
+            ctx.endTransparencyLayer()
+            ctx.restoreGState()
+
+            // Crisp hardware vermilion-orange gradient clipped to SF Symbol bolt
+            ctx.saveGState()
+            ctx.clip(to: fullRect, mask: maskCG)
+            let boltColors = [
+                CGColor(red: 0.96, green: 0.37, blue: 0.19, alpha: 1.0),
+                CGColor(red: 0.86, green: 0.24, blue: 0.09, alpha: 1.0)
+            ] as CFArray
+            let boltGrad = CGGradient(colorsSpace: colorSpace, colors: boltColors, locations: [0.0, 1.0])!
+            ctx.drawLinearGradient(
+                boltGrad,
+                start: CGPoint(x: cardRect.midX, y: drawRect.maxY),
+                end: CGPoint(x: cardRect.midX, y: drawRect.minY),
+                options: []
+            )
+            ctx.restoreGState()
+        }
+    }
+
+    ctx.restoreGState()
     NSGraphicsContext.restoreGraphicsState()
-    return rep.representation(using: .png, properties: [:])!
+    return rep
 }
 
-var images: [[String: String]] = []
-for size in [16, 32, 128, 256, 512] {
-    for scale in [1, 2] {
-        let name = "icon_\(size)x\(size)\(scale == 2 ? "@2x" : "").png"
-        try! render(size * scale).write(to: out.appendingPathComponent(name))
-        images.append(["idiom": "mac", "size": "\(size)x\(size)", "scale": "\(scale)x", "filename": name])
-    }
+func savePNG(_ rep: NSBitmapImageRep, to path: String) {
+    let data = rep.representation(using: .png, properties: [:])!
+    try! data.write(to: URL(fileURLWithPath: path))
 }
-let contents: [String: Any] = ["images": images, "info": ["author": "xcode", "version": 1]]
-try! JSONSerialization.data(withJSONObject: contents, options: [.prettyPrinted, .sortedKeys]).write(to: out.appendingPathComponent("Contents.json"))
-try! render(1024).write(to: out.deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("../scripts/icon-preview.png").standardizedFileURL)
+
+let root = FileManager.default.currentDirectoryPath
+let macIconset = "\(root)/App/Assets.xcassets/AppIcon.appiconset"
+
+let macSizes: [(String, Int)] = [
+    ("icon_16x16.png", 16),
+    ("icon_16x16@2x.png", 32),
+    ("icon_32x32.png", 32),
+    ("icon_32x32@2x.png", 64),
+    ("icon_128x128.png", 128),
+    ("icon_128x128@2x.png", 256),
+    ("icon_256x256.png", 256),
+    ("icon_256x256@2x.png", 512),
+    ("icon_512x512.png", 512),
+    ("icon_512x512@2x.png", 1024),
+]
+
+for (name, px) in macSizes {
+    savePNG(renderIcon(size: px, macOSGrid: true), to: "\(macIconset)/\(name)")
+}
+
+// Preview image & full-bleed iOS/watchOS master icon
+savePNG(renderIcon(size: 1024, macOSGrid: true), to: "\(root)/scripts/icon-preview.png")
+
+let iosRoot = "\(root)/../KangCharge-iOS"
+if FileManager.default.fileExists(atPath: iosRoot) {
+    let fullBleed = renderIcon(size: 1024, macOSGrid: false)
+    savePNG(fullBleed, to: "\(iosRoot)/iOS/App/Assets.xcassets/AppIcon.appiconset/AppIcon.png")
+    savePNG(fullBleed, to: "\(iosRoot)/watchOS/App/Assets.xcassets/AppIcon.appiconset/AppIcon.png")
+}
+
+print("SugarWatt icons generated successfully.")

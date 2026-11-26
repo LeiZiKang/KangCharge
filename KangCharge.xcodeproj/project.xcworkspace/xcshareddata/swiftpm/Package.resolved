@@ -1,0 +1,15 @@
+{
+  "originHash" : "1c3b4dfd2c4f0771be0c7633ccc70d8d42fe88eafc67454c40ed269de0a32eef",
+  "pins" : [
+    {
+      "identity" : "kangchargecore",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LeiZiKang/KangChargeCore.git",
+      "state" : {
+        "revision" : "d212f1f29357dc6080881eaaf52500801e5116e7",
+        "version" : "1.0.4"
+      }
+    }
+  ],
+  "version" : 3
+}

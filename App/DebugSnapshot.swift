@@ -1,13 +1,10 @@
 #if DEBUG
 import SwiftUI
 import AppKit
+import KangChargeCore
+import KangChargeUI
 
-/// Launch with `open "Kang Charge.app" --args -kcSnapshot YES` to dump PNGs of the
-/// dashboard, a port sheet and all widget sizes into the sandbox tmp directory
-/// (or `-kcSnapshotDir <path>`; use scripts/screenshots.sh, which builds without the sandbox).
 enum DebugSnapshot {
-    static let openPortNotification = Notification.Name("KCDebugOpenPort")
-
     @MainActor
     static func runIfRequested(store: ChargerStore) {
         if UserDefaults.standard.bool(forKey: "kcDemo") { store.loadDemo() }
@@ -15,95 +12,167 @@ enum DebugSnapshot {
         let dir = UserDefaults.standard.string(forKey: "kcSnapshotDir").map { URL(fileURLWithPath: $0) }
             ?? URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("kc-snapshots")
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+
         Task { @MainActor in
-            try? await Task.sleep(nanoseconds: store.isDemo ? 2_000_000_000 : 14_000_000_000)
-            if let window = NSApp.windows.first(where: { $0.title == store.deviceName || $0.identifier?.rawValue.contains("main") == true }) {
-                let tall = UserDefaults.standard.double(forKey: "kcHeight")
-                if tall > 0 {
-                    window.setFrame(NSRect(x: 0, y: 0, width: UserDefaults.standard.double(forKey: "kcWidth").nonZero ?? 1180, height: tall), display: true)
-                    try? await Task.sleep(nanoseconds: 1_500_000_000)
-                }
-                capture(window, to: dir.appendingPathComponent("main.png"))
-                renderDashboard(store: store, dir: dir)
-                NotificationCenter.default.post(name: openPortNotification, object: store.isDemo ? 2 : 5)
-                try? await Task.sleep(nanoseconds: store.isDemo ? 3_000_000_000 : 16_000_000_000)
-                if let sheet = window.attachedSheet { capture(sheet, to: dir.appendingPathComponent("port-sheet.png")) }
-            }
-            renderWidgets(store: store, dir: dir)
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            renderAll(store: store, dir: dir)
             print("KC_SNAPSHOT_DONE \(dir.path)")
             FileHandle.standardError.write("KC_SNAPSHOT_DONE \(dir.path)\n".data(using: .utf8)!)
+            NSApp.terminate(nil)
         }
     }
 
     @MainActor
-    static func capture(_ window: NSWindow, to url: URL) {
-        guard let view = window.contentView?.superview ?? window.contentView else { return }
-        guard let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return }
-        view.cacheDisplay(in: view.bounds, to: rep)
-        try? rep.representation(using: .png, properties: [:])?.write(to: url)
+    static func renderAll(store: ChargerStore, dir: URL) {
+        let schemes: [(String, ColorScheme)] = [("light", .light), ("dark", .dark)]
+        let snapshot = store.snapshot ?? KCDemo.snapshot()
+        let entry = ChargerEntry(
+            date: .now,
+            snapshot: snapshot,
+            energySummary: KCDemo.energySummary(weeks: 26),
+            isStale: false
+        )
+
+        for (suffix, scheme) in schemes {
+            let sidebarBg = scheme == .dark ? Color(red: 0.13, green: 0.13, blue: 0.14) : Color(red: 0.945, green: 0.941, blue: 0.925)
+            let canvasBg = KCStyle.canvasBackground(for: scheme)
+
+            // Render two-column Apple Music-inspired composition cleanly for README/audit
+            let overview = HStack(spacing: 0) {
+                mockSidebar(store: store, scheme: scheme)
+                    .frame(width: 224)
+                    .background(sidebarBg)
+                Divider()
+                ZStack(alignment: .bottom) {
+                    OverviewBody(onSelectPort: { _ in })
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                        .background(canvasBg)
+                    FloatingControlBar(confirmingStrategy: .constant(nil))
+                        .padding(.bottom, 16)
+                }
+            }
+            .frame(width: 1040, height: 930)
+            .clipped()
+            .environmentObject(store)
+            .environmentObject(UpdateChecker.shared)
+            .environment(\.colorScheme, scheme)
+
+            write(overview, scale: 2, to: dir.appendingPathComponent("dashboard-\(suffix).png"))
+
+            let menu = MenuBarPanel()
+                .background(scheme == .dark ? Color(red: 0.15, green: 0.15, blue: 0.16) : Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .shadow(color: .black.opacity(scheme == .dark ? 0.35 : 0.10), radius: 14, y: 4)
+                .padding(14)
+                .background(sidebarBg)
+                .environmentObject(store)
+                .environmentObject(AppVisibility.shared)
+                .environment(\.colorScheme, scheme)
+            write(menu, scale: 2, to: dir.appendingPathComponent("menubar-\(suffix).png"))
+
+            let widgetSizes: [(String, CGSize, AnyView)] = [
+                ("widget-small-\(suffix)", CGSize(width: 170, height: 170), AnyView(SmallPowerWidget(entry: entry))),
+                ("widget-medium-\(suffix)", CGSize(width: 364, height: 170), AnyView(MediumPowerWidget(entry: entry))),
+                ("widget-large-\(suffix)", CGSize(width: 364, height: 382), AnyView(LargePowerWidget(entry: entry))),
+                ("widget-heatmap-medium-\(suffix)", CGSize(width: 364, height: 170), AnyView(EnergyHeatmapWidgetView(entry: entry, overrideFamily: .systemMedium))),
+                ("widget-heatmap-large-\(suffix)", CGSize(width: 364, height: 382), AnyView(EnergyHeatmapWidgetView(entry: entry, overrideFamily: .systemLarge))),
+            ]
+            for (name, size, view) in widgetSizes {
+                let card = view
+                    .padding(16)
+                    .frame(width: size.width, height: size.height)
+                    .background(scheme == .dark ? Color(red: 0.14, green: 0.14, blue: 0.15) : Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .shadow(color: .black.opacity(scheme == .dark ? 0.35 : 0.10), radius: 14, y: 4)
+                    .padding(16)
+                    .background(sidebarBg)
+                    .environment(\.colorScheme, scheme)
+                write(card, scale: 2, to: dir.appendingPathComponent("\(name).png"))
+            }
+        }
     }
 
     @MainActor
-    static func renderDashboard(store: ChargerStore, dir: URL) {
-        let content = VStack(alignment: .leading, spacing: 16) {
-            HeaderView(showDeviceInfo: .constant(false))
-            HStack(alignment: .top, spacing: 16) {
-                VStack(spacing: 16) { ModeCard(); PowerCard(onSelect: { _ in }) }.frame(maxWidth: .infinity)
-                VStack(spacing: 16) { PortListCard(onSelect: { _ in }); DeviceCard() }.frame(width: 350)
+    private static func mockSidebar(store: ChargerStore, scheme: ColorScheme) -> some View {
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 7) {
+                    StatusDot(connection: store.connection)
+                    Text(store.deviceName).font(.headline.weight(.semibold))
+                }
+                Text(store.facts.localizedName).font(.caption2).foregroundStyle(.secondary)
             }
-            HStack(alignment: .top, spacing: 16) {
-                TemperatureCard(); DisplayCard(); AllocationCard(showAllocation: .constant(false)).frame(width: 350)
+            .padding(.horizontal, 14)
+
+            VStack(alignment: .leading, spacing: 4) {
+                sidebarItem("Overview", icon: "bolt.circle", selected: true)
+                sidebarItem("Daily Energy", icon: "calendar", badge: KCFormat.energy(wattHours: store.energySummary.todayWattHours))
+                sidebarItem("Controls", icon: "slider.horizontal.3")
+                sidebarItem("Hardware", icon: "cpu")
+            }
+            .padding(.horizontal, 8)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("PORTS")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 2)
+                ForEach(store.ports) { port in
+                    HStack(spacing: 8) {
+                        Image(systemName: DeviceSymbol.systemName(for: port))
+                            .font(.caption)
+                            .foregroundStyle(port.isCharging ? .primary : .secondary)
+                            .frame(width: 16)
+                        Text(port.deviceName ?? KCFormat.portDisplayName(port))
+                            .font(.callout)
+                            .foregroundStyle(port.enabled ? .primary : .secondary)
+                            .lineLimit(1)
+                        Spacer()
+                        if port.isCharging {
+                            Text("\(KCFormat.watts(port.power)) W")
+                                .font(.caption2.weight(.medium))
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                }
+            }
+            .padding(.horizontal, 8)
+
+            Spacer()
+        }
+        .padding(.top, 22)
+    }
+
+    private static func sidebarItem(_ title: String, icon: String, selected: Bool = false, badge: String? = nil) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .foregroundStyle(selected ? KCStyle.accent : .secondary)
+                .frame(width: 18)
+            Text(title)
+                .font(.callout.weight(selected ? .medium : .regular))
+            Spacer()
+            if let badge {
+                Text(badge).font(.caption2).foregroundStyle(.secondary).monospacedDigit()
             }
         }
-        .padding(24)
-        .frame(width: 1180)
-        .background(Theme.cream)
-        .foregroundStyle(Theme.ink)
-        .environmentObject(store)
-        .environment(\.colorScheme, .light)
-        write(content, scale: 1.5, to: dir.appendingPathComponent("dashboard.png"))
-
-        let setup = SetupView().frame(width: 640, height: 640).environmentObject(store).environment(\.colorScheme, .light)
-        write(setup, scale: 2, to: dir.appendingPathComponent("setup.png"))
-
-        let menu = MenuBarPanel().environmentObject(store).environment(\.colorScheme, .light)
-        write(menu, scale: 2, to: dir.appendingPathComponent("menubar.png"))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(selected ? Color.primary.opacity(0.08) : .clear))
     }
 
     @MainActor
     static func write<V: View>(_ view: V, scale: CGFloat, to url: URL) {
         let renderer = ImageRenderer(content: view)
         renderer.scale = scale
-        if let image = renderer.nsImage, let tiff = image.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) {
+        if let image = renderer.nsImage,
+           let tiff = image.tiffRepresentation,
+           let rep = NSBitmapImageRep(data: tiff) {
             try? rep.representation(using: .png, properties: [:])?.write(to: url)
         }
     }
-
-    @MainActor
-    static func renderWidgets(store: ChargerStore, dir: URL) {
-        let snapshot = store.snapshot ?? .preview
-        let entry = ChargerEntry(date: .now, snapshot: snapshot, isStale: false)
-        let sizes: [(String, CGSize, AnyView)] = [
-            ("small", CGSize(width: 170, height: 170), AnyView(SmallWidget(entry: entry))),
-            ("medium", CGSize(width: 364, height: 170), AnyView(MediumWidget(entry: entry))),
-            ("large", CGSize(width: 364, height: 382), AnyView(LargeWidget(entry: entry))),
-        ]
-        for (name, size, view) in sizes {
-            let content = view
-                .foregroundStyle(Theme.ink)
-                .padding(16)
-                .frame(width: size.width, height: size.height)
-                .background(WidgetBackground())
-                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-                .padding(10)
-                .background(Color(white: 0.75))
-                .environment(\.colorScheme, .light)
-            write(content, scale: 2, to: dir.appendingPathComponent("widget-\(name).png"))
-        }
-    }
-}
-
-private extension Double {
-    var nonZero: Double? { self == 0 ? nil : self }
 }
 #endif

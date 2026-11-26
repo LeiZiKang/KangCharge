@@ -10,28 +10,26 @@
 		006AA3C756B19F26CD8D7DD6 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9699835DB6E4B9A4375857BC /* SetupView.swift */; };
 		0ADE6A6E0ED2F50A5DA18504 /* Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7B988498F97163DBC382D17 /* Shortcuts.swift */; };
 		106333EC6A867E9EC117CC3E /* KangChargeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373A31607700F255A8B4A5E3 /* KangChargeApp.swift */; };
-		10E415287CE35D1893DAB8E0 /* ChargerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935F432063D9476D17DD516E /* ChargerAPI.swift */; };
 		16E83447D215D25095DFBAFC /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D53D49E7C8A6001C2ADE314 /* WidgetViews.swift */; };
-		23C805049CCE993D5CF94D9F /* CableDiagram.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD3AF6D6BA810233A8688B4 /* CableDiagram.swift */; };
+		1C6B94D40590A62E27304F90 /* KangChargeCore in Frameworks */ = {isa = PBXBuildFile; productRef = CA83714452B5B53DDF9725C3 /* KangChargeCore */; };
+		2B1239539EC6A4CF3C093DF8 /* AppVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2FE1373468F489C7955CFE5 /* AppVisibility.swift */; };
 		2C36B5547CCD483ACB259E87 /* PortViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0CA1481AB4EEB862E0A87E /* PortViews.swift */; };
-		3F9E1F07494CB0414D490BBA /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC1EBE3A91CCD30118B53A /* Models.swift */; };
-		481414AF756E2A5C2210010A /* MCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD331EFD0CFE0A079F66A191 /* MCPClient.swift */; };
-		48FD210495745C50AD410716 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B191FCE850273F6E1D7C5D3A /* Theme.swift */; };
 		49D430D875024A4677379E73 /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D53D49E7C8A6001C2ADE314 /* WidgetViews.swift */; };
 		5827DBEEB436A0A63FAE7E49 /* ChargerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09F9731D56D941E4FCD92E5 /* ChargerStore.swift */; };
 		5E86D45B08E531BC4B57AF19 /* KangChargeWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 456AAB5ED0B63F30259DAB7F /* KangChargeWidget.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		69220F4A06F6B40B0AFC2D0A /* CableDiagram.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD3AF6D6BA810233A8688B4 /* CableDiagram.swift */; };
-		91C69659E2DE6C644CE66A6E /* MCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD331EFD0CFE0A079F66A191 /* MCPClient.swift */; };
+		61325EA3B2448460067BAC18 /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871080D2F06EDD4B85B1DDF6 /* UpdateChecker.swift */; };
+		7F81A66316F7BB3404CBD765 /* Previews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98ABC35F1089837A90497C34 /* Previews.swift */; };
 		987C36018573A7902FF000D5 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A06BC5A25C3762BF5516715 /* Intents.swift */; };
 		A20594FFB197D7BE8652106A /* KangChargeWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AF9CC03063CF57E10601DA /* KangChargeWidget.swift */; };
-		A6851C5BEBDD8E5986736226 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDC1EBE3A91CCD30118B53A /* Models.swift */; };
 		AABC0BFB3918FEEC821F0C35 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EFCA5B0DCEB0D1F04FE5D2 /* DashboardView.swift */; };
 		AF3F19659D3C04E6AA961459 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A06BC5A25C3762BF5516715 /* Intents.swift */; };
-		B1435734058A392F53A99804 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B191FCE850273F6E1D7C5D3A /* Theme.swift */; };
+		AFF547641C671E8D88899E3A /* KangChargeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 47C6087F171C8057C5EFB101 /* KangChargeUI */; };
+		B5E836694A359978A7702796 /* KangChargeCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4E77826E525E33B681FB06EC /* KangChargeCore */; };
 		BA5BFE6342D6753576CEBCC4 /* ControlViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59CA93DA1EB9FD55742D689 /* ControlViews.swift */; };
+		BB8FA3A78DB38D9818E9B9C2 /* DeviceIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC3A02275D4607D9D6B633B /* DeviceIcon.swift */; };
 		CA1BCE0B0CA36DC408D6F45C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B24472D6B4619E951D979F59 /* Assets.xcassets */; };
+		F04ABC09087F56510F1ADD97 /* KangChargeUI in Frameworks */ = {isa = PBXBuildFile; productRef = 7AF49493C7E523C45A0B3960 /* KangChargeUI */; };
 		F3DA92B0635F4F4F60C736E6 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D15687C308990CEB545D0606 /* MenuBarView.swift */; };
-		F919797E07C70218F3B52821 /* ChargerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935F432063D9476D17DD516E /* ChargerAPI.swift */; };
 		FC3BA49F488069945D81C807 /* DebugSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4C1D37D62E15F50DF53C67 /* DebugSnapshot.swift */; };
 /* End PBXBuildFile section */
 
@@ -69,23 +67,43 @@
 		46EFCA5B0DCEB0D1F04FE5D2 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		757D865CD8CD4FF56A895834 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7D53D49E7C8A6001C2ADE314 /* WidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViews.swift; sourceTree = "<group>"; };
-		935F432063D9476D17DD516E /* ChargerAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChargerAPI.swift; sourceTree = "<group>"; };
+		871080D2F06EDD4B85B1DDF6 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
 		9699835DB6E4B9A4375857BC /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
-		ACD3AF6D6BA810233A8688B4 /* CableDiagram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CableDiagram.swift; sourceTree = "<group>"; };
+		98ABC35F1089837A90497C34 /* Previews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Previews.swift; sourceTree = "<group>"; };
 		B09F9731D56D941E4FCD92E5 /* ChargerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChargerStore.swift; sourceTree = "<group>"; };
-		B191FCE850273F6E1D7C5D3A /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		B24472D6B4619E951D979F59 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B2FE1373468F489C7955CFE5 /* AppVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVisibility.swift; sourceTree = "<group>"; };
 		B5AF9CC03063CF57E10601DA /* KangChargeWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KangChargeWidget.swift; sourceTree = "<group>"; };
 		B7B988498F97163DBC382D17 /* Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shortcuts.swift; sourceTree = "<group>"; };
 		BFE79D6356778AF2DBEF5DA4 /* KangChargeWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KangChargeWidget.entitlements; sourceTree = "<group>"; };
 		C59CA93DA1EB9FD55742D689 /* ControlViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlViews.swift; sourceTree = "<group>"; };
-		CCDC1EBE3A91CCD30118B53A /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		D15687C308990CEB545D0606 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		DBA0BE855E66FD69B9A093DA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		DEC3A02275D4607D9D6B633B /* DeviceIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceIcon.swift; sourceTree = "<group>"; };
 		EC4C1D37D62E15F50DF53C67 /* DebugSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSnapshot.swift; sourceTree = "<group>"; };
-		FD331EFD0CFE0A079F66A191 /* MCPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPClient.swift; sourceTree = "<group>"; };
 		FFCBA13C6B1D9D1CF820BFDA /* KangCharge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KangCharge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F4CCF418EEB46BE9B61004B2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1C6B94D40590A62E27304F90 /* KangChargeCore in Frameworks */,
+				AFF547641C671E8D88899E3A /* KangChargeUI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FEC8ED51A093D422E6D0C11A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5E836694A359978A7702796 /* KangChargeCore in Frameworks */,
+				F04ABC09087F56510F1ADD97 /* KangChargeUI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		33756DD620D40482516BD837 /* Products */ = {
@@ -100,18 +118,22 @@
 		5DF7557708B103BBF0777679 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				B2FE1373468F489C7955CFE5 /* AppVisibility.swift */,
 				B24472D6B4619E951D979F59 /* Assets.xcassets */,
 				B09F9731D56D941E4FCD92E5 /* ChargerStore.swift */,
 				C59CA93DA1EB9FD55742D689 /* ControlViews.swift */,
 				46EFCA5B0DCEB0D1F04FE5D2 /* DashboardView.swift */,
 				EC4C1D37D62E15F50DF53C67 /* DebugSnapshot.swift */,
+				DEC3A02275D4607D9D6B633B /* DeviceIcon.swift */,
 				757D865CD8CD4FF56A895834 /* Info.plist */,
 				3337958286C98714A4A815CA /* KangCharge.entitlements */,
 				373A31607700F255A8B4A5E3 /* KangChargeApp.swift */,
 				D15687C308990CEB545D0606 /* MenuBarView.swift */,
 				1D0CA1481AB4EEB862E0A87E /* PortViews.swift */,
+				98ABC35F1089837A90497C34 /* Previews.swift */,
 				9699835DB6E4B9A4375857BC /* SetupView.swift */,
 				B7B988498F97163DBC382D17 /* Shortcuts.swift */,
+				871080D2F06EDD4B85B1DDF6 /* UpdateChecker.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -119,12 +141,7 @@
 		A1E237A7ED66B4169E8CA145 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				ACD3AF6D6BA810233A8688B4 /* CableDiagram.swift */,
-				935F432063D9476D17DD516E /* ChargerAPI.swift */,
 				2A06BC5A25C3762BF5516715 /* Intents.swift */,
-				FD331EFD0CFE0A079F66A191 /* MCPClient.swift */,
-				CCDC1EBE3A91CCD30118B53A /* Models.swift */,
-				B191FCE850273F6E1D7C5D3A /* Theme.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -168,6 +185,7 @@
 			buildPhases = (
 				96263394C77DE129214B5561 /* Sources */,
 				2FD366179BD4E25C4C449384 /* Resources */,
+				FEC8ED51A093D422E6D0C11A /* Frameworks */,
 				9175D32099F6A66F14BD68FD /* Embed Foundation Extensions */,
 			);
 			buildRules = (
@@ -177,6 +195,8 @@
 			);
 			name = KangCharge;
 			packageProductDependencies = (
+				4E77826E525E33B681FB06EC /* KangChargeCore */,
+				7AF49493C7E523C45A0B3960 /* KangChargeUI */,
 			);
 			productName = KangCharge;
 			productReference = FFCBA13C6B1D9D1CF820BFDA /* KangCharge.app */;
@@ -187,6 +207,7 @@
 			buildConfigurationList = 2195AA343A918FDC64DCA56C /* Build configuration list for PBXNativeTarget "KangChargeWidget" */;
 			buildPhases = (
 				F0209293610AC1BD554A6102 /* Sources */,
+				F4CCF418EEB46BE9B61004B2 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -194,6 +215,8 @@
 			);
 			name = KangChargeWidget;
 			packageProductDependencies = (
+				CA83714452B5B53DDF9725C3 /* KangChargeCore */,
+				47C6087F171C8057C5EFB101 /* KangChargeUI */,
 			);
 			productName = KangChargeWidget;
 			productReference = 456AAB5ED0B63F30259DAB7F /* KangChargeWidget.appex */;
@@ -227,6 +250,9 @@
 			);
 			mainGroup = F52EC6E96CFEA4DB13B9E83F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				EE7ECEA83F82CE9B734F0FF1 /* XCRemoteSwiftPackageReference "KangChargeCore" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 33756DD620D40482516BD837 /* Products */;
 			projectDirPath = "";
@@ -254,21 +280,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				23C805049CCE993D5CF94D9F /* CableDiagram.swift in Sources */,
-				10E415287CE35D1893DAB8E0 /* ChargerAPI.swift in Sources */,
+				2B1239539EC6A4CF3C093DF8 /* AppVisibility.swift in Sources */,
 				5827DBEEB436A0A63FAE7E49 /* ChargerStore.swift in Sources */,
 				BA5BFE6342D6753576CEBCC4 /* ControlViews.swift in Sources */,
 				AABC0BFB3918FEEC821F0C35 /* DashboardView.swift in Sources */,
 				FC3BA49F488069945D81C807 /* DebugSnapshot.swift in Sources */,
+				BB8FA3A78DB38D9818E9B9C2 /* DeviceIcon.swift in Sources */,
 				AF3F19659D3C04E6AA961459 /* Intents.swift in Sources */,
 				106333EC6A867E9EC117CC3E /* KangChargeApp.swift in Sources */,
-				481414AF756E2A5C2210010A /* MCPClient.swift in Sources */,
 				F3DA92B0635F4F4F60C736E6 /* MenuBarView.swift in Sources */,
-				3F9E1F07494CB0414D490BBA /* Models.swift in Sources */,
 				2C36B5547CCD483ACB259E87 /* PortViews.swift in Sources */,
+				7F81A66316F7BB3404CBD765 /* Previews.swift in Sources */,
 				006AA3C756B19F26CD8D7DD6 /* SetupView.swift in Sources */,
 				0ADE6A6E0ED2F50A5DA18504 /* Shortcuts.swift in Sources */,
-				48FD210495745C50AD410716 /* Theme.swift in Sources */,
+				61325EA3B2448460067BAC18 /* UpdateChecker.swift in Sources */,
 				49D430D875024A4677379E73 /* WidgetViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -277,13 +302,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				69220F4A06F6B40B0AFC2D0A /* CableDiagram.swift in Sources */,
-				F919797E07C70218F3B52821 /* ChargerAPI.swift in Sources */,
 				987C36018573A7902FF000D5 /* Intents.swift in Sources */,
 				A20594FFB197D7BE8652106A /* KangChargeWidget.swift in Sources */,
-				91C69659E2DE6C644CE66A6E /* MCPClient.swift in Sources */,
-				A6851C5BEBDD8E5986736226 /* Models.swift in Sources */,
-				B1435734058A392F53A99804 /* Theme.swift in Sources */,
 				16E83447D215D25095DFBAFC /* WidgetViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -352,10 +372,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -373,13 +394,14 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 2.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -417,7 +439,7 @@
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge";
-				PRODUCT_NAME = "Kang Charge";
+				PRODUCT_NAME = SugarWatt;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -436,7 +458,7 @@
 					"@executable_path/../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge";
-				PRODUCT_NAME = "Kang Charge";
+				PRODUCT_NAME = SugarWatt;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -476,7 +498,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -491,12 +513,13 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 2.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 			};
@@ -533,6 +556,40 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		EE7ECEA83F82CE9B734F0FF1 /* XCRemoteSwiftPackageReference "KangChargeCore" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LeiZiKang/KangChargeCore.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		47C6087F171C8057C5EFB101 /* KangChargeUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EE7ECEA83F82CE9B734F0FF1 /* XCRemoteSwiftPackageReference "KangChargeCore" */;
+			productName = KangChargeUI;
+		};
+		4E77826E525E33B681FB06EC /* KangChargeCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EE7ECEA83F82CE9B734F0FF1 /* XCRemoteSwiftPackageReference "KangChargeCore" */;
+			productName = KangChargeCore;
+		};
+		7AF49493C7E523C45A0B3960 /* KangChargeUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EE7ECEA83F82CE9B734F0FF1 /* XCRemoteSwiftPackageReference "KangChargeCore" */;
+			productName = KangChargeUI;
+		};
+		CA83714452B5B53DDF9725C3 /* KangChargeCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EE7ECEA83F82CE9B734F0FF1 /* XCRemoteSwiftPackageReference "KangChargeCore" */;
+			productName = KangChargeCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F140FE965280700A6EB3D626 /* Project object */;
 }

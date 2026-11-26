@@ -344,7 +344,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.widget";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.mac.widget";
 				PRODUCT_NAME = KangChargeWidget;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -432,7 +432,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.widget";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.mac.widget";
 				PRODUCT_NAME = KangChargeWidget;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -452,7 +452,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.mac";
 				PRODUCT_NAME = SugarWatt;
 				SDKROOT = macosx;
 			};
@@ -471,7 +471,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_ID_PREFIX).kangcharge.mac";
 				PRODUCT_NAME = SugarWatt;
 				SDKROOT = macosx;
 			};

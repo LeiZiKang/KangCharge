@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>zh-Hans</string>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Kang Charge</string>
+	<string>SugarWatt</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -27,6 +27,6 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Kang Charge · 小电拼 Mirror 控制台</string>
+	<string>SugarWatt — Unofficial macOS Control Center for CANDYSIGN CoCan</string>
 </dict>
 </plist>

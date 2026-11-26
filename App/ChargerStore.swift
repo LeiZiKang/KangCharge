@@ -1,6 +1,7 @@
 import SwiftUI
 import WidgetKit
 import AppKit
+import KangChargeCore
 
 @MainActor
 final class ChargerStore: ObservableObject {
@@ -16,7 +17,7 @@ final class ChargerStore: ObservableObject {
         var isError: Bool
     }
 
-    @Published var facts: MachineFacts = SnapshotStore.loadFacts() ?? .fallback
+    @Published var facts: MachineFacts
     @Published var info: DeviceInfo?
     @Published var details: [PortDetail] = []
     @Published var status: ChargingStatus?
@@ -26,42 +27,102 @@ final class ChargerStore: ObservableObject {
     @Published var portHistory: [Int: [Double]] = [:]
     @Published var totalHistory: [PowerPoint] = []
     @Published var snapshot: ChargerSnapshot?
+    @Published var energySummary: EnergySummary
+    @Published var energyAnalytics: EnergyAnalytics = .empty
     @Published var connection: Connection = .connecting
     @Published var lastUpdated: Date?
     @Published var busy: Set<String> = []
     @Published var toast: Toast?
-    @Published var lastStrategy: ChargingStrategy? = AppConfig.lastStrategy
-    @Published var deviceName: String = AppConfig.deviceName
-    @Published var isConfigured = AppConfig.serverURL != nil
+    @Published var lastStrategy: ChargingStrategy?
+    @Published var deviceName: String
+    @Published var isConfigured: Bool
+    @Published var isDemo = false
 
-    private var api: ChargerAPI? = try? ChargerAPI.current()
+    private var api: ChargerAPI?
     private var pollTask: Task<Void, Never>?
     private var tick = 0
     private var lastWidgetReload = Date.distantPast
     private var toastTask: Task<Void, Never>?
+    private var ledgerObserver: NSObjectProtocol?
 
-    init() {
+    static var isRunningInPreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+
+    static let heatmapWeeks = 47
+
+    init(previewDemo: Bool? = nil) {
+        if let previewDemo {
+            self.facts = .fallback
+            self.energySummary = KCDemo.energySummary(weeks: Self.heatmapWeeks)
+            self.energyAnalytics = previewDemo ? KCDemo.energyAnalytics() : .empty
+            self.lastStrategy = previewDemo ? .fast : nil
+            self.deviceName = "Desk Charger"
+            self.isConfigured = previewDemo
+            if previewDemo {
+                loadDemo()
+            }
+            return
+        }
+
+        if Self.isRunningInPreview {
+            self.facts = .fallback
+            self.energySummary = KCDemo.energySummary(weeks: Self.heatmapWeeks)
+            self.energyAnalytics = KCDemo.energyAnalytics()
+            self.lastStrategy = .fast
+            self.deviceName = "Desk Charger"
+            self.isConfigured = true
+            loadDemo()
+            return
+        }
+
+        self.facts = SnapshotStore.loadFacts() ?? .fallback
+        self.energySummary = EnergyLedger.shared.summary(weeks: Self.heatmapWeeks)
+        self.energyAnalytics = EnergyLedger.shared.analytics()
+        self.lastStrategy = AppConfig.lastStrategy
+        self.deviceName = AppConfig.deviceName
+        self.isConfigured = AppConfig.serverURL != nil
+        self.api = try? ChargerAPI.current()
+
         if let cached = SnapshotStore.load() {
             snapshot = cached
             totalHistory = cached.history
         }
+        ledgerObserver = NotificationCenter.default.addObserver(
+            forName: EnergyLedger.didUpdateNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self, !self.isDemo else { return }
+                self.energySummary = EnergyLedger.shared.summary(weeks: Self.heatmapWeeks)
+                self.energyAnalytics = EnergyLedger.shared.analytics(portNames: self.portLabelMap())
+            }
+        }
+    }
+
+    deinit {
+        if let ledgerObserver { NotificationCenter.default.removeObserver(ledgerObserver) }
     }
 
     // MARK: Derived
 
-    var ports: [PortSnapshot] { snapshot?.ports ?? ChargerSnapshot.preview.ports.map { var p = $0; p.power = 0; p.enabled = false; return p } }
+    var ports: [PortSnapshot] {
+        snapshot?.ports ?? KCDemo.snapshot().ports.map { var p = $0; p.power = 0; p.enabled = false; return p }
+    }
     var totalPower: Double { snapshot?.totalPower ?? 0 }
     var maxPower: Double { facts.maxPowerBudget }
-    var sessionEnergy: Double { details.compactMap(\.sessionChargeMwh).reduce(0, +) }
+    var sessionEnergyMwh: Double {
+        let fromDetails = details.compactMap(\.sessionChargeMwh).reduce(0, +)
+        return fromDetails > 0 ? fromDetails : (snapshot?.sessionEnergyMwh ?? 0)
+    }
 
     func detail(for port: Int) -> PortDetail? { details.first { $0.port == port } }
 
     // MARK: Polling
 
     func start() {
-        #if DEBUG
         if isDemo { return }
-        #endif
         guard pollTask == nil else { return }
         guard api != nil else {
             connection = .offline(MCPError.notConfigured.localizedDescription)
@@ -81,6 +142,7 @@ final class ChargerStore: ObservableObject {
     }
 
     func reconnect() {
+        isDemo = false
         pollTask?.cancel()
         pollTask = nil
         api?.client.close()
@@ -88,10 +150,19 @@ final class ChargerStore: ObservableObject {
         isConfigured = api != nil
         deviceName = AppConfig.deviceName
         connection = .connecting
+        energySummary = EnergyLedger.shared.summary(weeks: 44)
         start()
     }
 
     func refreshAll() async {
+        if isDemo {
+            if let current = snapshot {
+                snapshot = KCDemo.tick(current)
+                totalHistory = snapshot?.history ?? []
+                lastUpdated = Date()
+            }
+            return
+        }
         guard let api else { return }
         if let facts = try? await api.machineFacts() {
             self.facts = facts
@@ -143,9 +214,11 @@ final class ChargerStore: ObservableObject {
             facts: facts, details: details, status: status ?? self.status,
             temperatureMode: temperatureMode?.rawValue, previous: self.snapshot ?? SnapshotStore.load(), date: now
         )
-        withAnimation(.easeInOut(duration: 0.35)) {
+        withAnimation(.easeInOut(duration: 0.3)) {
             self.snapshot = snapshot
             self.totalHistory = snapshot.history
+            self.energySummary = EnergyLedger.shared.summary(weeks: Self.heatmapWeeks, endingAt: now)
+            self.energyAnalytics = EnergyLedger.shared.analytics(portNames: self.portLabelMap())
             for port in snapshot.ports {
                 var values = portHistory[port.index] ?? []
                 values.append(port.power)
@@ -163,6 +236,10 @@ final class ChargerStore: ObservableObject {
     // MARK: Actions
 
     private func run(_ key: String, success: String, refresh: Bool = true, _ body: @escaping (ChargerAPI) async throws -> Void) {
+        if isDemo {
+            show(success, isError: false)
+            return
+        }
         guard !busy.contains(key) else { return }
         guard let api else {
             show(MCPError.notConfigured.localizedDescription, isError: true)
@@ -191,19 +268,26 @@ final class ChargerStore: ObservableObject {
         let name = facts.port(index)?.name ?? "\(index)"
         if var snapshot, let i = snapshot.ports.firstIndex(where: { $0.index == index }) {
             snapshot.ports[i].enabled = on
-            withAnimation { self.snapshot = snapshot }
+            if !on { snapshot.ports[i].power = 0 }
+            else if isDemo { snapshot.ports[i].power = KCDemo.basePower[index] ?? 0 }
+            withAnimation(.easeInOut(duration: 0.2)) { self.snapshot = snapshot }
         }
         if let status {
             let mask = on ? status.statusBitmask | (1 << (index - 1)) : status.statusBitmask & ~(1 << (index - 1))
             self.status = ChargingStatus(statusBitmask: mask)
         }
-        run("port-\(index)", success: "\(name) 口已\(on ? "打开" : "关闭")") { api in
+        let zh = Locale.kcPrefersChinese
+        let msg = zh ? "\(name) 口已\(on ? "开启" : "关闭")" : "\(name) turned \(on ? "on" : "off")"
+        run("port-\(index)", success: msg) { api in
             try await api.setPorts([index], on: on)
         }
     }
 
     func setStrategy(_ strategy: ChargingStrategy) {
-        run("strategy", success: "已切换到「\(strategy.title)」") { api in
+        let zh = Locale.kcPrefersChinese
+        let msg = zh ? "已切换到 \(strategy.localizedName)" : "Mode set to \(strategy.localizedName)"
+        if isDemo { lastStrategy = strategy; show(msg, isError: false); return }
+        run("strategy", success: msg) { api in
             try await api.setStrategy(strategy)
             await MainActor.run { self.lastStrategy = strategy }
         }
@@ -212,7 +296,9 @@ final class ChargerStore: ObservableObject {
     func setTemperature(_ mode: TemperatureMode) {
         let previous = temperatureMode
         temperatureMode = mode
-        run("temperature", success: "温控已设为「\(mode.title)」") { api in
+        let zh = Locale.kcPrefersChinese
+        let msg = zh ? "温控：\(mode.localizedName)" : "Thermal: \(mode.localizedName)"
+        run("temperature", success: msg) { api in
             do { try await api.setTemperatureMode(mode) } catch {
                 await MainActor.run { self.temperatureMode = previous }
                 throw error
@@ -222,42 +308,54 @@ final class ChargerStore: ObservableObject {
 
     func setDisplayLevel(_ level: DisplayLevel) {
         display?.level = level.rawValue
-        run("display-level", success: "状态屏亮度：\(level.rawValue)") { api in try await api.setDisplayLevel(level) }
+        let zh = Locale.kcPrefersChinese
+        run("display-level", success: zh ? "亮度：\(level.localizedName)" : "Brightness: \(level.localizedName)") { api in
+            try await api.setDisplayLevel(level)
+        }
     }
 
     func setStatusDisplayMode(_ mode: StatusDisplayMode) {
         display?.displayMode = mode.rawValue
-        run("display-mode", success: "屏显模式：\(mode.rawValue)") { api in try await api.setStatusDisplayMode(mode) }
+        let zh = Locale.kcPrefersChinese
+        run("display-mode", success: zh ? "屏显：\(mode.localizedName)" : "Display: \(mode.localizedName)") { api in
+            try await api.setStatusDisplayMode(mode)
+        }
     }
 
     func setIdleDisplay(_ idle: IdleDisplay) {
         display?.idleDisplay = idle.rawValue
-        run("idle-display", success: "待机显示：\(idle.rawValue)") { api in try await api.setIdleDisplay(idle) }
+        let zh = Locale.kcPrefersChinese
+        run("idle-display", success: zh ? "待机动画：\(idle.localizedName)" : "Idle screen: \(idle.localizedName)") { api in
+            try await api.setIdleDisplay(idle)
+        }
     }
 
     func setHourlyChime(_ enabled: Bool) {
         display?.hourlyChime = enabled
-        run("hourly-chime", success: "整点报时已\(enabled ? "开启" : "关闭")") { api in try await api.setHourlyChime(enabled) }
+        let zh = Locale.kcPrefersChinese
+        run("hourly-chime", success: zh ? "整点报时已\(enabled ? "开启" : "关闭")" : "Hourly chime \(enabled ? "on" : "off")") { api in
+            try await api.setHourlyChime(enabled)
+        }
     }
 
     func applyAllocation(_ watts: [Int]) {
-        run("allocation", success: "临时功率分配已生效") { api in try await api.setPowerAllocation(watts) }
+        let zh = Locale.kcPrefersChinese
+        run("allocation", success: zh ? "临时功率分配已生效" : "Power allocation applied") { api in
+            try await api.setPowerAllocation(watts)
+        }
     }
 
     func loadStats(port: Int) async throws -> [PortStatSample] {
-        #if DEBUG
         if isDemo {
             return (0..<180).map { i in
-                let watts = 42 + 14 * sin(Double(i) / 9) + (i > 120 ? -18 : 0)
+                let watts = 46 + 14 * sin(Double(i) / 9) + (i > 120 ? -16 : 0)
                 return PortStatSample(currentMa: watts / 20 * 1000, powerMw: watts * 1000, voltageMv: 20_000)
             }
         }
-        #endif
         guard let api else { throw MCPError.notConfigured }
         return try await api.portStats(port: port).samples
     }
 
-    /// Validates a pasted MCP address by actually talking to the charger, then saves it.
     func connect(to url: URL, nickname: String) async throws {
         let probe = ChargerAPI(url: url)
         defer { probe.client.close() }
@@ -276,12 +374,12 @@ final class ChargerStore: ObservableObject {
         WidgetCenter.shared.reloadAllTimelines()
     }
 
-    /// Forgets the MCP address and all cached device data.
     func disconnect() {
         pollTask?.cancel()
         pollTask = nil
         api?.client.close()
         api = nil
+        isDemo = false
         AppConfig.setServerURL(nil)
         AppConfig.resetDeviceData()
         isConfigured = false
@@ -291,21 +389,38 @@ final class ChargerStore: ObservableObject {
         WidgetCenter.shared.reloadAllTimelines()
     }
 
+    func resetEnergyHistory() {
+        EnergyLedger.shared.reset()
+        energySummary = EnergyLedger.shared.summary(weeks: Self.heatmapWeeks)
+        energyAnalytics = .empty
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    private func portLabelMap() -> [Int: String] {
+        var map: [Int: String] = [:]
+        for port in ports {
+            let base = port.name == "A" ? "USB-A" : port.name
+            if let device = port.deviceName, !device.isEmpty {
+                map[port.index] = "\(base) · \(device)"
+            } else {
+                map[port.index] = base
+            }
+        }
+        return map
+    }
+
     func show(_ message: String, isError: Bool) {
         let toast = Toast(message: message, isError: isError)
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { self.toast = toast }
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { self.toast = toast }
         toastTask?.cancel()
         toastTask = Task {
             try? await Task.sleep(nanoseconds: isError ? 5_000_000_000 : 2_600_000_000)
             guard !Task.isCancelled else { return }
-            withAnimation(.easeOut(duration: 0.3)) { if self.toast == toast { self.toast = nil } }
+            withAnimation(.easeOut(duration: 0.25)) { if self.toast == toast { self.toast = nil } }
         }
     }
 
-    #if DEBUG
-    private(set) var isDemo = false
-
-    /// Fills the store with sample data (no network) for README screenshots: `-kcDemo YES`.
+    /// Enters interactive sample-data mode (available both in Debug and Release so anyone can preview without hardware).
     func loadDemo() {
         isDemo = true
         pollTask?.cancel()
@@ -313,15 +428,19 @@ final class ChargerStore: ObservableObject {
         api = nil
         isConfigured = true
         facts = .fallback
-        deviceName = "书桌小电拼"
-        var demo = ChargerSnapshot.preview
-        demo.deviceName = deviceName
+        let demo = KCDemo.snapshot()
+        deviceName = demo.deviceName
         snapshot = demo
         totalHistory = demo.history
+        energySummary = KCDemo.energySummary(weeks: Self.heatmapWeeks)
+        energyAnalytics = KCDemo.energyAnalytics()
         details = demo.ports.map { port in
-            PortDetail(port: port.index, connected: true, dieTemperature: port.temperature, fcProtocol: port.protocolName,
-                       ioutMa: port.current * 1000, voutMv: port.voltage * 1000, vinMv: 13_000, sessionChargeMwh: 12_400,
-                       sessionId: 1, deviceBrandEn: nil, deviceBrandZh: nil, deviceNameEn: nil, deviceNameZh: port.deviceName)
+            PortDetail(
+                port: port.index, connected: port.enabled, dieTemperature: port.temperature,
+                fcProtocol: port.protocolName, ioutMa: port.current * 1000, voutMv: port.voltage * 1000,
+                vinMv: 13_000, sessionChargeMwh: port.sessionChargeMwh, sessionId: 1,
+                deviceNameEn: port.deviceName, deviceNameZh: port.deviceName
+            )
         }
         for port in demo.ports {
             portHistory[port.index] = (0..<40).map { max(0, port.power + sin(Double($0) / 3) * port.power * 0.08) }
@@ -330,15 +449,8 @@ final class ChargerStore: ObservableObject {
         temperatureMode = .power
         display = DisplayConfig(level: "中", displayMode: "功率显示优先", idleDisplay: "时间", hourlyChime: true)
         lastStrategy = .fast
-        pd = [2: PDStatus(port: 2, pdRevision: "PD 3.0", ppsChargingSupported: true, requestEprModeCapable: false, requestPdoId: 4,
-                          operatingVoltage: 2000, operatingCurrent: 291, statusTemperature: "moderate", hasEmarker: true,
-                          cableIsActive: false, cableEprModeCapable: true, cableMaxVbusVoltage: "50V", cableMaxVbusCurrent: "5A",
-                          cableUsbHighestSpeed: "USB 2.0", cableLatency: "<10ns", cableBrandZh: "Apple", cableBrandEn: "Apple",
-                          cableNameZh: "240W 编织线", cableNameEn: nil, hasBattery: false, batteryPresentCapacity: nil,
-                          batteryDesignCapacity: nil, batteryLastFullChargeCapacity: nil, deviceNameZh: "MacBook Pro",
-                          deviceNameEn: nil, sinkMaximumPdp: nil, sinkOperationalPdp: nil)]
+        pd = KCDemo.samplePDStatus()
         connection = .online
         lastUpdated = Date()
     }
-    #endif
 }

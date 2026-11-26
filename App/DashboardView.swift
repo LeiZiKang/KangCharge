@@ -1,404 +1,698 @@
 import SwiftUI
+import Charts
+import KangChargeCore
+import KangChargeUI
 
+enum SidebarDestination: Hashable {
+    case overview
+    case energy
+    case controls
+    case device
+    case port(Int)
+}
+
+/// Apple Music-inspired native macOS workspace:
+/// translucent vibrancy sidebar on the left, borderless editorial canvas on the right,
+/// and a subtle floating frosted-glass control capsule anchored at the bottom.
 struct DashboardView: View {
     @EnvironmentObject private var store: ChargerStore
-    @State private var selectedPort: PortSnapshot?
-    @State private var showAllocation = false
-    @State private var showDeviceInfo = false
+    @EnvironmentObject private var updater: UpdateChecker
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var selection: SidebarDestination = .overview
+    @State private var confirmingStrategy: ChargingStrategy?
+
+    init(initialSelection: SidebarDestination = .overview) {
+        _selection = State(initialValue: initialSelection)
+    }
+
+    private var canvasBg: Color { KCStyle.canvasBackground(for: colorScheme) }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            Theme.cream.ignoresSafeArea()
+        NavigationSplitView {
+            sidebar
+                .navigationSplitViewColumnWidth(min: 205, ideal: 226, max: 260)
+        } detail: {
+            ZStack(alignment: .bottom) {
+                detailCanvas
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(canvasBg)
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    HeaderView(showDeviceInfo: $showDeviceInfo)
+                // Soft ceramic fade scrim so scrolling content never clashes behind the floating glass capsule
+                LinearGradient(
+                    colors: [canvasBg.opacity(0), canvasBg.opacity(0.88), canvasBg],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 82)
+                .allowsHitTesting(false)
 
-                    HStack(alignment: .top, spacing: 16) {
-                        VStack(spacing: 16) {
-                            ModeCard()
-                            PowerCard(onSelect: { selectedPort = $0 })
-                        }
-                        .frame(maxWidth: .infinity)
-
-                        VStack(spacing: 16) {
-                            PortListCard(onSelect: { selectedPort = $0 })
-                            DeviceCard()
-                        }
-                        .frame(width: 350)
+                VStack(spacing: 10) {
+                    if let toast = store.toast {
+                        ToastPill(toast: toast)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
+                    FloatingControlBar(confirmingStrategy: $confirmingStrategy)
+                }
+                .padding(.bottom, 14)
+                .padding(.horizontal, 20)
+            }
+        }
+        .navigationSplitViewStyle(.balanced)
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button {
+                    Task { await store.refreshAll() }
+                } label: {
+                    Label(L("Refresh", "刷新"), systemImage: "arrow.clockwise")
+                }
+                .help(L("Refresh now (⌘R)", "立即刷新 (⌘R)"))
 
-                    HStack(alignment: .top, spacing: 16) {
-                        TemperatureCard()
-                        DisplayCard()
-                        AllocationCard(showAllocation: $showAllocation)
-                            .frame(width: 350)
+                SettingsLink {
+                    Label(L("Settings", "设置"), systemImage: "gearshape")
+                }
+                .help(L("Settings (⌘,)", "设置 (⌘,)"))
+            }
+        }
+        .confirmationDialog(
+            confirmingStrategy.map { L("Switch to \($0.localizedName)?", "切换到「\($0.localizedName)」？") } ?? "",
+            isPresented: Binding(get: { confirmingStrategy != nil }, set: { if !$0 { confirmingStrategy = nil } }),
+            presenting: confirmingStrategy
+        ) { strategy in
+            Button(L("Switch Mode", "确认切换"), role: .destructive) {
+                store.setStrategy(strategy)
+                confirmingStrategy = nil
+            }
+            Button(L("Cancel", "取消"), role: .cancel) { confirmingStrategy = nil }
+        } message: { strategy in
+            Text(strategy.localizedSummary)
+        }
+    }
+
+    // MARK: - Sidebar (macOS Vibrancy)
+
+    private var sidebar: some View {
+        List(selection: $selection) {
+            Section {
+                NavigationLink(value: SidebarDestination.overview) {
+                    Label {
+                        Text(L("Overview", "总览"))
+                    } icon: {
+                        Image(systemName: "bolt.circle").foregroundStyle(.secondary)
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 8)
-                .padding(.bottom, 32)
-                .frame(maxWidth: 1240)
-                .frame(maxWidth: .infinity)
+                NavigationLink(value: SidebarDestination.energy) {
+                    HStack {
+                        Label {
+                            Text(L("Daily Energy", "每日用电"))
+                        } icon: {
+                            Image(systemName: "calendar").foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Text(KCFormat.energy(wattHours: store.energySummary.todayWattHours))
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+                }
+                NavigationLink(value: SidebarDestination.controls) {
+                    Label {
+                        Text(L("Controls", "设备控制"))
+                    } icon: {
+                        Image(systemName: "slider.horizontal.3").foregroundStyle(.secondary)
+                    }
+                }
+                NavigationLink(value: SidebarDestination.device) {
+                    Label {
+                        Text(L("Hardware", "硬件信息"))
+                    } icon: {
+                        Image(systemName: "cpu").foregroundStyle(.secondary)
+                    }
+                }
             }
 
-            if let toast = store.toast {
-                ToastView(toast: toast)
-                    .padding(.bottom, 22)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            Section(L("Ports", "端口")) {
+                ForEach(store.ports) { port in
+                    NavigationLink(value: SidebarDestination.port(port.index)) {
+                        HStack(spacing: 8) {
+                            Image(systemName: DeviceSymbol.systemName(for: port))
+                                .font(.system(size: 13))
+                                .foregroundStyle(port.isCharging ? .primary : .secondary)
+                                .frame(width: 18)
+
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(port.deviceName ?? KCFormat.portDisplayName(port))
+                                    .font(.callout)
+                                    .foregroundStyle(port.enabled ? .primary : .secondary)
+                                    .lineLimit(1)
+                                if port.deviceName != nil {
+                                    Text(KCFormat.portDisplayName(port))
+                                        .font(.caption2)
+                                        .foregroundStyle(.tertiary)
+                                }
+                            }
+
+                            Spacer(minLength: 4)
+
+                            if port.isCharging {
+                                Text("\(KCFormat.watts(port.power)) W")
+                                    .font(.caption.weight(.medium))
+                                    .monospacedDigit()
+                                    .foregroundStyle(.secondary)
+                                Circle()
+                                    .fill(KCStyle.charging)
+                                    .frame(width: 5, height: 5)
+                            } else if !port.enabled {
+                                Text(L("Off", "关"))
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
             }
         }
-        .foregroundStyle(Theme.ink)
-        .tint(Theme.orange)
-        #if DEBUG
-        .onReceive(NotificationCenter.default.publisher(for: DebugSnapshot.openPortNotification)) { note in
-            if let index = note.object as? Int { selectedPort = store.ports.first { $0.index == index } }
+        .listStyle(.sidebar)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 7) {
+                    StatusDot(connection: store.connection)
+                    Text(store.deviceName)
+                        .font(.headline.weight(.semibold))
+                        .lineLimit(1)
+                }
+                HStack(spacing: 4) {
+                    Text(store.facts.localizedName)
+                    if store.isDemo {
+                        Text("·")
+                        Text(L("Sample", "示例"))
+                    }
+                }
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 10)
         }
-        #endif
-        .sheet(item: $selectedPort) { port in
-            PortDetailSheet(portIndex: port.index)
-                .environmentObject(store)
-        }
-        .sheet(isPresented: $showAllocation) {
-            AllocationSheet()
-                .environmentObject(store)
-        }
-        .sheet(isPresented: $showDeviceInfo) {
-            DeviceInfoSheet()
-                .environmentObject(store)
+    }
+
+    // MARK: - Detail Canvas Router
+
+    @ViewBuilder
+    private var detailCanvas: some View {
+        switch selection {
+        case .overview:
+            OverviewCanvas(onSelectPort: { selection = .port($0.index) })
+        case .energy:
+            EnergyCalendarCanvas()
+        case .controls:
+            ControlsCanvas()
+        case .device:
+            DeviceInfoCanvas()
+        case .port(let index):
+            PortDetailCanvas(portIndex: index)
         }
     }
 }
 
-// MARK: - Header
+// MARK: - Overview Canvas (Borderless Editorial Layout)
 
-struct HeaderView: View {
-    @EnvironmentObject private var store: ChargerStore
-    @Binding var showDeviceInfo: Bool
+struct OverviewCanvas: View {
+    var onSelectPort: (PortSnapshot) -> Void
 
     var body: some View {
-        HStack(alignment: .bottom) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("CoCan Mirror")
-                    .font(.system(size: 13, weight: .heavy).italic())
-                    .foregroundStyle(Theme.orange)
-                HStack(spacing: 10) {
-                    Text(store.deviceName)
-                        .font(.system(size: 30, weight: .heavy))
-                    Button {
-                        showDeviceInfo = true
-                    } label: {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(Theme.gray)
-                    }
-                    .buttonStyle(.plain)
-                    .help("设备信息")
-                }
-                HStack(spacing: 8) {
-                    StatusBadge()
-                    Text(subtitle)
-                        .font(.system(size: 12))
-                        .foregroundStyle(Theme.gray)
-                }
-            }
-            Spacer()
-            HStack(spacing: 10) {
-                CircleButton(symbol: "arrow.clockwise", help: "立即刷新 (⌘R)") {
-                    Task { await store.refreshAll() }
-                }
-                SettingsLink {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 14, weight: .semibold))
-                        .frame(width: 34, height: 34)
-                        .background(Circle().fill(Color.white))
-                }
-                .buttonStyle(.plain)
-                .help("设置")
-            }
+        ScrollView {
+            OverviewBody(onSelectPort: onSelectPort)
         }
-        .padding(.horizontal, 4)
+    }
+}
+
+struct OverviewBody: View {
+    @EnvironmentObject private var store: ChargerStore
+    @EnvironmentObject private var updater: UpdateChecker
+    var onSelectPort: (PortSnapshot) -> Void
+
+    private var fraction: Double {
+        store.maxPower > 0 ? store.totalPower / store.maxPower : 0
     }
 
-    private var subtitle: String {
-        var parts = ["\(store.facts.brandZh ?? "制糖工厂") \(store.facts.friendlyNameZh ?? "小电拼")"]
-        if let info = store.info {
-            if let ssid = info.ssid { parts.append("Wi-Fi \(ssid)\(info.rssi.map { " \($0)dBm" } ?? "")") }
-            if let version = info.appVersion { parts.append("固件 \(version)") }
-        }
-        if let date = store.lastUpdated {
-            parts.append("更新于 \(date.formatted(date: .omitted, time: .standard))")
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            if case .available(let version, let url, _) = updater.status {
+                UpdateBanner(version: version, url: url)
+            }
+
+            // Editorial page title
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L("Overview", "总览"))
+                        .font(.system(size: 26, weight: .bold))
+                    Text(overviewSubtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+
+                // Borderless hero power (circular ring gauge) + live curve
+                HStack(alignment: .center, spacing: 32) {
+                    VStack(alignment: .leading, spacing: 14) {
+                        HStack(alignment: .center, spacing: 18) {
+                            ZStack {
+                                Circle()
+                                    .stroke(Color.primary.opacity(0.08), lineWidth: 7)
+                                Circle()
+                                    .trim(from: 0, to: fraction)
+                                    .stroke(
+                                        KCStyle.accent,
+                                        style: StrokeStyle(lineWidth: 7, lineCap: .round)
+                                    )
+                                    .rotationEffect(.degrees(-90))
+                                    .animation(.easeInOut(duration: 0.35), value: fraction)
+                                VStack(spacing: 0) {
+                                    Text("\(Int((fraction * 100).rounded()))%")
+                                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                                        .monospacedDigit()
+                                    Text(L("of \(Int(store.maxPower))W", "/ \(Int(store.maxPower))W"))
+                                        .font(.system(size: 9.5, weight: .medium))
+                                        .foregroundStyle(.tertiary)
+                                        .monospacedDigit()
+                                }
+                            }
+                            .frame(width: 76, height: 76)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                    Text(KCFormat.watts(store.totalPower))
+                                        .font(.system(size: 50, weight: .medium, design: .rounded))
+                                        .monospacedDigit()
+                                        .contentTransition(.numericText(value: store.totalPower))
+                                    Text("W")
+                                        .font(.system(size: 20, weight: .regular, design: .rounded))
+                                        .foregroundStyle(.secondary)
+                                }
+                                Text(L(
+                                    "\(KCFormat.watts(max(store.maxPower - store.totalPower, 0))) W headroom free",
+                                    "剩余可用余量 \(KCFormat.watts(max(store.maxPower - store.totalPower, 0))) W"
+                                ))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .monospacedDigit()
+                            }
+                        }
+
+                        HStack(spacing: 22) {
+                            EditorialStat(label: L("Charging", "充电中"), value: "\(store.snapshot?.chargingCount ?? 0) of \(store.facts.ports.count)")
+                            EditorialStat(label: L("Session", "本次累计"), value: store.sessionEnergyMwh > 0 ? KCFormat.energy(mWh: store.sessionEnergyMwh) : "—")
+                            EditorialStat(label: L("Today", "今日用电"), value: KCFormat.energy(wattHours: store.energySummary.todayWattHours))
+                        }
+                    }
+                    .frame(width: 316, alignment: .leading)
+
+                    liveChart
+                        .frame(maxWidth: .infinity)
+                }
+
+                Divider().opacity(0.6)
+
+                // Ports stream (no heavy card boxes, Apple Music track-list cadence)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(L("Ports", "端口"))
+                            .font(.title3.weight(.semibold))
+                        Spacer()
+                        Text(L("Select a port for PD & cable telemetry", "点按任意端口查看 PD 协议与线材详情"))
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
+
+                    VStack(spacing: 2) {
+                        ForEach(store.ports) { port in
+                            PortListRow(port: port, onSelect: { onSelectPort(port) })
+                        }
+                    }
+                }
+
+                Divider().opacity(0.6)
+
+                // Daily Energy Heatmap integrated cleanly on canvas
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(L("Daily Energy", "每日用电量"))
+                            .font(.title3.weight(.semibold))
+                        Spacer()
+                        if EnergyLedger.shared.isCloudAvailable && AppConfig.iCloudEnergySyncEnabled {
+                            Label(L("Synced via iCloud", "iCloud 同步"), systemImage: "icloud")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text(L("Last 46 weeks", "近 46 周"))
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+
+                    EnergyHeatmapView(
+                        summary: EnergySummary(
+                            days: Array(store.energySummary.days.suffix(46 * 7)),
+                            todayKey: store.energySummary.days.last?.dayKey ?? ""
+                        ),
+                        tint: KCStyle.charging,
+                        cellSpacing: 3.5,
+                        cornerRadius: 3,
+                        maxCellSize: 12.5,
+                        interactive: true,
+                        showLegend: true,
+                        showHeader: true
+                    )
+                }
+            }
+            .padding(.horizontal, 32)
+            .padding(.top, 24)
+            .padding(.bottom, 86) // Breathing room above floating glass bar
+            .frame(maxWidth: 900, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var overviewSubtitle: String {
+        var parts = [store.facts.localizedName]
+        if let version = store.info?.appVersion { parts.append("Firmware \(version)") }
+        if let updated = store.lastUpdated {
+            parts.append(L("Updated \(updated.formatted(date: .omitted, time: .shortened))", "更新于 \(updated.formatted(date: .omitted, time: .shortened))"))
         }
         return parts.joined(separator: " · ")
     }
-}
 
-struct StatusBadge: View {
-    @EnvironmentObject private var store: ChargerStore
-
-    var body: some View {
-        let (text, color): (String, Color) = {
-            switch store.connection {
-            case .online: return ("在线", Theme.green)
-            case .connecting: return ("连接中", Theme.amber)
-            case .offline: return ("离线", Theme.red)
-            }
-        }()
-        Text(text)
-            .font(.system(size: 11, weight: .bold))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 7)
-            .padding(.vertical, 2)
-            .background(RoundedRectangle(cornerRadius: 4).fill(color))
-            .help({ if case .offline(let message) = store.connection { return message }; return "通过 MCP 实时连接" }())
-    }
-}
-
-struct CircleButton: View {
-    var symbol: String
-    var help: String
-    var action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: symbol)
-                .font(.system(size: 14, weight: .semibold))
-                .frame(width: 34, height: 34)
-                .background(Circle().fill(Color.white))
-        }
-        .buttonStyle(.plain)
-        .help(help)
-    }
-}
-
-// MARK: - Mode card
-
-struct ModeCard: View {
-    @EnvironmentObject private var store: ChargerStore
-    @State private var confirming: ChargingStrategy?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
-                Label {
-                    Text("模式").font(.system(size: 13, weight: .semibold))
-                } icon: {
-                    Image(systemName: "slider.horizontal.below.rectangle").foregroundStyle(Theme.orange)
-                }
-                .foregroundStyle(Theme.gray)
-                .fixedSize()
-
-                HStack(spacing: 8) {
-                        ForEach(ChargingStrategy.allCases) { strategy in
-                            ModePill(
-                                title: strategy.shortTitle,
-                                symbol: strategy.symbol,
-                                selected: store.lastStrategy == strategy,
-                                busy: store.busy.contains("strategy")
-                            ) {
-                                if strategy.needsConfirmation { confirming = strategy } else { store.setStrategy(strategy) }
-                            }
-                            .help("\(strategy.title)（\(strategy.rawValue)）：\(strategy.detail)")
-                    }
-                }
-                Spacer(minLength: 0)
-            }
-
-            Divider().overlay(Theme.line)
-
-            HStack(spacing: 10) {
-                Circle()
-                    .fill(isCharging ? Theme.orange : Theme.lightGray)
-                    .frame(width: 8, height: 8)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(isCharging ? "正在充电" : "待机中")
-                        .font(.system(size: 14, weight: .bold))
-                    Text(store.lastStrategy.map { "\($0.title) · \($0.detail)" } ?? "实时监控充电功率、温度")
-                        .font(.system(size: 12))
-                        .foregroundStyle(Theme.gray)
-                        .lineLimit(1)
-                }
+    @ViewBuilder
+    private var liveChart: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(L("Live Load", "实时曲线"))
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
                 Spacer()
-                Button {
-                    store.setTemperature(store.temperatureMode == .power ? .temperature : .power)
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: store.temperatureMode?.symbol ?? "thermometer.medium")
-                        Text(store.temperatureMode?.title ?? "温控")
-                        Image(systemName: "arrow.left.arrow.right").font(.system(size: 9, weight: .bold))
+                if let peak = store.totalHistory.map(\.watts).max(), peak > 0 {
+                    Text(L("Peak \(KCFormat.watts(peak)) W", "峰值 \(KCFormat.watts(peak)) W"))
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                        .monospacedDigit()
+                }
+            }
+
+            if store.totalHistory.count >= 2 {
+                let peakY = max((store.totalHistory.map(\.watts).max() ?? 100) * 1.25, 40)
+                Chart(store.totalHistory, id: \.date) { point in
+                    AreaMark(x: .value("Time", point.date), y: .value("Watts", point.watts))
+                        .interpolationMethod(.catmullRom)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [KCStyle.accent.opacity(0.18), KCStyle.accent.opacity(0.0)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    LineMark(x: .value("Time", point.date), y: .value("Watts", point.watts))
+                        .interpolationMethod(.catmullRom)
+                        .foregroundStyle(KCStyle.accent)
+                        .lineStyle(StrokeStyle(lineWidth: 1.8, lineCap: .round))
+                }
+                .chartYScale(domain: 0...peakY)
+                .chartXAxis(.hidden)
+                .chartYAxis {
+                    AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) { value in
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                            .foregroundStyle(Color.primary.opacity(0.07))
+                        AxisValueLabel {
+                            if let w = value.as(Double.self), w > 0 {
+                                Text("\(Int(w)) W")
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
+                                    .monospacedDigit()
+                            }
+                        }
                     }
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Theme.green)
+                }
+                .frame(height: 138)
+            } else {
+                Text(L("Collecting live readings…", "正在采集数据…"))
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 138)
+            }
+        }
+    }
+}
+
+// MARK: - Dedicated Energy Calendar Canvas
+
+struct EnergyCalendarCanvas: View {
+    @EnvironmentObject private var store: ChargerStore
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 26) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(L("Daily Energy", "每日用电量"))
+                        .font(.system(size: 28, weight: .bold))
+                    Text(L("Hardware-metered charging energy accumulated per day.", "基于硬件会话电量精确累加的每日用电日历。"))
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+
+                HStack(spacing: 32) {
+                    EditorialHeroMetric(label: L("Today", "今日"), value: KCFormat.energy(wattHours: store.energySummary.todayWattHours), highlight: true)
+                    EditorialHeroMetric(label: L("Last 7 Days", "近 7 天"), value: KCFormat.energy(wattHours: store.energySummary.last7DaysWattHours))
+                    EditorialHeroMetric(label: L("Peak Day", "单日峰值"), value: KCFormat.energy(wattHours: store.energySummary.peakWattHours))
+                    EditorialHeroMetric(label: L("Active Streak", "连续天数"), value: L("\(store.energySummary.currentStreak) days", "\(store.energySummary.currentStreak) 天"))
+                    Spacer()
+                }
+
+                Divider().opacity(0.6)
+
+                EnergyHeatmapView(
+                    summary: store.energySummary,
+                    tint: KCStyle.charging,
+                    cellSpacing: 4,
+                    cornerRadius: 3.5,
+                    maxCellSize: 13,
+                    interactive: true,
+                    showLegend: true,
+                    showHeader: true,
+                    showAxisLabels: true
+                )
+
+                Divider().opacity(0.6)
+
+                EnergyEquivalentsCard(totalWattHours: store.energySummary.totalWattHours)
+
+                Divider().opacity(0.6)
+
+                HStack(alignment: .top, spacing: 28) {
+                    PortEnergyDonutChart(shares: store.energyAnalytics.portShares)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    EnergyTimePatternChart(analytics: store.energyAnalytics)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                Divider().opacity(0.6)
+
+                HStack(spacing: 10) {
+                    Image(systemName: EnergyLedger.shared.isCloudAvailable && AppConfig.iCloudEnergySyncEnabled ? "icloud" : "internaldrive")
+                        .foregroundStyle(.secondary)
+                    Text(
+                        EnergyLedger.shared.isCloudAvailable && AppConfig.iCloudEnergySyncEnabled
+                            ? L("Daily totals stay synced across your Mac and iPhone through your private iCloud Key-Value Store.", "每日电量通过你的私有 iCloud 自动在 Mac 与 iPhone 间合并同步。")
+                            : L("Stored locally on this Mac. Enable iCloud Sync in signed builds to share this heatmap with iPhone.", "数据保存在本机。开启 iCloud 签名构建后可与 iPhone 同步热力图。")
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, 32)
+            .padding(.top, 24)
+            .padding(.bottom, 86)
+            .frame(maxWidth: 900, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+// MARK: - Apple Music-Style Floating Frosted Control Capsule
+
+struct FloatingControlBar: View {
+    @EnvironmentObject private var store: ChargerStore
+    @Binding var confirmingStrategy: ChargingStrategy?
+
+    var body: some View {
+        HStack(spacing: 14) {
+            // Left: Live summary
+            HStack(spacing: 8) {
+                StatusDot(connection: store.connection)
+                Text("\(KCFormat.watts(store.totalPower)) W")
+                    .font(.callout.weight(.semibold))
+                    .monospacedDigit()
+                Text("·")
+                    .foregroundStyle(.tertiary)
+                Text(store.lastStrategy?.localizedName ?? L("Smart", "自由流"))
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+
+            Divider().frame(height: 16)
+
+            // Center: Restrained quick mode switcher
+            HStack(spacing: 4) {
+                ForEach([ChargingStrategy.fast, .slow, .highPerformance]) { strategy in
+                    let selected = store.lastStrategy == strategy
+                    Button {
+                        if strategy.needsConfirmation { confirmingStrategy = strategy }
+                        else { store.setStrategy(strategy) }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: strategy.symbol)
+                                .font(.caption2)
+                            Text(strategy.localizedName)
+                                .font(.caption.weight(.medium))
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            Capsule().fill(selected ? Color.primary.opacity(0.11) : Color.clear)
+                        )
+                        .foregroundStyle(selected ? .primary : .secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(store.busy.contains("strategy"))
+                }
+            }
+
+            Divider().frame(height: 16)
+
+            // Right: Thermal toggle
+            if let thermal = store.temperatureMode {
+                Button {
+                    store.setTemperature(thermal == .power ? .temperature : .power)
+                } label: {
+                    Label(thermal.localizedName, systemImage: thermal.symbol)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-                .help("点按切换功率优先 / 温度优先")
-                .disabled(store.temperatureMode == nil || store.busy.contains("temperature"))
+                .disabled(store.busy.contains("temperature"))
+                .help(L("Toggle thermal mode", "切换温控策略"))
             }
         }
-        .candyCard()
-        .confirmationDialog(confirming.map { "切换到「\($0.title)」？" } ?? "", isPresented: Binding(get: { confirming != nil }, set: { if !$0 { confirming = nil } }), presenting: confirming) { strategy in
-            Button("确认切换") { store.setStrategy(strategy) }
-        } message: { strategy in
-            Text(strategy == .usbA ? "请确保 C4 口已连接小家电。切换将断电重连。" : "独享 · C1 模式下仅 C1 口输出，A、C2、C3、C4 口将被关闭。")
-        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 9)
+        .background(.regularMaterial, in: Capsule())
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.10), lineWidth: 0.75))
+        .shadow(color: .black.opacity(0.12), radius: 16, y: 6)
     }
-
-    private var isCharging: Bool { (store.snapshot?.chargingCount ?? 0) > 0 }
 }
 
-struct ModePill: View {
-    var title: String
-    var symbol: String
-    var selected: Bool
-    var busy: Bool = false
-    var action: () -> Void
+// MARK: - Editorial Typography Helpers
+
+struct EditorialStat: View {
+    let label: String
+    let value: String
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 5) {
-                Image(systemName: symbol).font(.system(size: 11, weight: .bold))
-                Text(title).font(.system(size: 13, weight: .semibold))
-            }
-            .foregroundStyle(selected ? Color.white : Theme.ink)
-            .padding(.horizontal, 13)
-            .padding(.vertical, 7)
-            .background(Capsule().fill(selected ? Theme.orange : Color.white))
-            .overlay(Capsule().strokeBorder(selected ? Color.clear : Color(hex: 0xE1E1E1), lineWidth: 1))
-            .contentShape(Capsule())
-        }
-        .buttonStyle(.plain)
-        .disabled(busy)
-    }
-}
-
-extension ChargingStrategy {
-    var shortTitle: String {
-        switch self {
-        case .fast: return "自由流"
-        case .slow: return "睡眠充"
-        case .usbA: return "小家电"
-        case .highPerformance: return "无线损"
-        case .singlePort: return "独享C1"
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+            Text(value)
+                .font(.callout.weight(.medium))
+                .monospacedDigit()
+                .foregroundStyle(.primary)
         }
     }
 }
 
-// MARK: - Power card (cable diagram)
-
-struct PowerCard: View {
-    @EnvironmentObject private var store: ChargerStore
-    var onSelect: (PortSnapshot) -> Void
+struct EditorialHeroMetric: View {
+    let label: String
+    let value: String
+    var highlight = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            ZStack(alignment: .bottomLeading) {
-                CableDiagram(ports: store.ports, chipScale: 1.05, chargerScale: 1.9, cableWidth: 5, animated: true, onTap: onSelect)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("实时充电功率")
-                        .font(.system(size: 14, weight: .semibold))
-                    HStack(alignment: .firstTextBaseline, spacing: 2) {
-                        Text(Format.watts(store.totalPower))
-                            .font(.system(size: 48, weight: .heavy))
-                            .monospacedDigit()
-                            .contentTransition(.numericText(value: store.totalPower))
-                        Text("W").font(.system(size: 32, weight: .heavy))
-                    }
-                    .foregroundStyle(Theme.orange)
-                }
-                .padding(.bottom, 4)
-            }
-            .overlay(alignment: .bottomTrailing) {
-                BudgetBox(used: store.totalPower, budget: store.maxPower)
-                    .offset(x: -8, y: 40)
-            }
-            .frame(height: 290)
-            .padding(.bottom, 36)
-
-            Divider().overlay(Theme.line)
-
-            HStack {
-                FooterStat(symbol: "clock", title: "充电中", value: "\(store.snapshot?.chargingCount ?? 0) / \(store.facts.ports.count) 口")
-                Spacer()
-                FooterStat(symbol: "bolt.circle", title: "本次累计", value: store.sessionEnergy > 0 ? Format.energy(mWh: store.sessionEnergy) : "—")
-                Spacer()
-                FooterStat(symbol: "gauge.with.dots.needle.33percent", title: "剩余功率", value: "\(Format.watts(max(store.maxPower - store.totalPower, 0)))W")
-            }
+        VStack(alignment: .leading, spacing: 3) {
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.system(size: 24, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(highlight ? KCStyle.charging : .primary)
         }
-        .candyCard(padding: 20)
     }
 }
 
-struct BudgetBox: View {
-    var used: Double
-    var budget: Double
+struct StatusDot: View {
+    var connection: ChargerStore.Connection
+
+    private var color: Color {
+        switch connection {
+        case .online: return KCStyle.charging
+        case .connecting: return KCStyle.caution
+        case .offline: return .secondary
+        }
+    }
+
+    private var label: String {
+        switch connection {
+        case .online: return L("Live via MCP", "MCP 在线")
+        case .connecting: return L("Connecting…", "连接中…")
+        case .offline(let msg): return msg
+        }
+    }
 
     var body: some View {
-        VStack(spacing: 0) {
-            Text("\(Int(budget))W")
-                .font(.system(size: 20, weight: .heavy))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 3)
-            Rectangle().fill(Theme.orange).frame(height: 1.5)
-            Text("已使用 \(budget > 0 ? Int((used / budget * 100).rounded()) : 0)%")
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(Theme.orange)
-                .padding(.vertical, 3)
-        }
-        .fixedSize()
-        .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.white))
-        .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).strokeBorder(Theme.orange, lineWidth: 1.5))
+        Circle()
+            .fill(color)
+            .frame(width: 7, height: 7)
+            .help(label)
     }
 }
 
-struct FooterStat: View {
-    var symbol: String
-    var title: String
-    var value: String
+struct UpdateBanner: View {
+    let version: String
+    let url: URL
 
     var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: symbol).foregroundStyle(Theme.orange)
-            Text(title).foregroundStyle(Theme.ink)
-            Text(value).foregroundStyle(Theme.gray).monospacedDigit()
+        HStack(spacing: 10) {
+            Image(systemName: "arrow.down.circle.fill")
+                .foregroundStyle(KCStyle.accent)
+            Text(L("SugarWatt \(version) is available.", "发现新版本 SugarWatt \(version)。"))
+                .font(.callout.weight(.medium))
+            Spacer()
+            Link(L("Download", "前往下载"), destination: url)
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
         }
-        .font(.system(size: 13, weight: .semibold))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(KCStyle.accent.opacity(0.08)))
     }
 }
 
-// MARK: - Toast
-
-struct ToastView: View {
+struct ToastPill: View {
     var toast: ChargerStore.Toast
 
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: toast.isError ? "exclamationmark.circle.fill" : "checkmark.circle.fill")
-                .foregroundStyle(toast.isError ? Theme.red : Theme.orange)
+                .foregroundStyle(toast.isError ? KCStyle.hot : KCStyle.charging)
             Text(toast.message)
-                .foregroundStyle(Theme.ink)
+                .font(.callout.weight(.medium))
         }
-        .font(.system(size: 13, weight: .semibold))
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(Capsule().fill(Color.white))
-        .shadow(color: .black.opacity(0.12), radius: 14, y: 4)
-    }
-}
-
-// MARK: - Device card
-
-struct DeviceCard: View {
-    @EnvironmentObject private var store: ChargerStore
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            CardTitle(title: "设备", detail: store.facts.productFamily)
-            DetailRow("序列号", store.info?.psn)
-            DetailRow("固件 / FPGA", store.info.map { "\($0.appVersion ?? "—") / \($0.fpgaVersion ?? "—")" })
-            DetailRow("Wi-Fi", store.info.map { "\($0.ssid ?? "—") · \($0.rssi.map { "\($0) dBm" } ?? "—")" })
-            DetailRow("最大总功率", "\(Int(store.facts.maxPowerBudget))W")
-        }
-        .candyCard()
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(.regularMaterial, in: Capsule())
+        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.10), lineWidth: 0.75))
+        .shadow(color: .black.opacity(0.10), radius: 10, y: 3)
     }
 }

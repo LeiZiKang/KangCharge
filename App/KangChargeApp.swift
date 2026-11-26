@@ -1,50 +1,77 @@
 import SwiftUI
+import KangChargeCore
+import KangChargeUI
 
 @main
 struct KangChargeApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var store = ChargerStore()
 
     var body: some Scene {
-        Window("Kang Charge", id: "main") {
-            Group {
-                if store.isConfigured { DashboardView() } else { SetupView() }
-            }
+        Window("SugarWatt", id: "main") {
+            MainRootView()
                 .environmentObject(store)
-                .frame(minWidth: 1000, minHeight: 680)
-                .preferredColorScheme(.light)
-                .onAppear {
-                    store.start()
-                    #if DEBUG
-                    DebugSnapshot.runIfRequested(store: store)
-                    #endif
-                }
+                .environmentObject(AppVisibility.shared)
+                .environmentObject(UpdateChecker.shared)
+                .frame(minWidth: 860, minHeight: 600)
         }
-        .defaultSize(width: 1180, height: 900)
-        .windowStyle(.hiddenTitleBar)
+        .defaultSize(width: 1020, height: 700)
+        .windowToolbarStyle(.unified)
         .commands {
             CommandGroup(after: .toolbar) {
-                Button("刷新") { Task { await store.refreshAll() } }
-                    .keyboardShortcut("r")
+                Button(L("Refresh", "刷新")) {
+                    Task { await store.refreshAll() }
+                }
+                .keyboardShortcut("r")
             }
         }
-
-        MenuBarExtra {
-            MenuBarPanel()
-                .environmentObject(store)
-                .preferredColorScheme(.light)
-                .onAppear { store.start() }
-        } label: {
-            if store.isConfigured {
-                Text("\(Image(systemName: "bolt.fill")) \(Format.watts(store.totalPower))W")
-            } else {
-                Image(systemName: "bolt.slash")
-            }
-        }
-        .menuBarExtraStyle(.window)
 
         Settings {
             SettingsView()
                 .environmentObject(store)
+                .environmentObject(AppVisibility.shared)
+                .environmentObject(UpdateChecker.shared)
+        }
+    }
+}
+
+/// Concise bilingual helper (English-first, automatic Simplified Chinese).
+func L(_ en: String, _ zh: String) -> String {
+    Locale.kcPrefersChinese ? zh : en
+}
+
+struct MainRootView: View {
+    @EnvironmentObject private var store: ChargerStore
+    @EnvironmentObject private var visibility: AppVisibility
+    @EnvironmentObject private var updater: UpdateChecker
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        Group {
+            if store.isConfigured {
+                DashboardView()
+            } else {
+                SetupView()
+            }
+        }
+        .onAppear {
+            guard !ChargerStore.isRunningInPreview else { return }
+            visibility.applyActivationPolicy()
+            StatusBarController.shared.attach(store: store) {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "main")
+            }
+            store.start()
+            #if !APP_STORE
+            updater.checkOnLaunchIfNeeded()
+            #endif
+            #if DEBUG
+            DebugSnapshot.runIfRequested(store: store)
+            #endif
+        }
+        .onReceive(NotificationCenter.default.publisher(for: AppVisibility.reopenMainWindowNotification)) { _ in
+            openWindow(id: "main")
+            NSApp.activate(ignoringOtherApps: true)
         }
     }
 }

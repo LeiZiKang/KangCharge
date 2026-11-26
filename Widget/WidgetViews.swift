@@ -1,16 +1,19 @@
 import WidgetKit
 import SwiftUI
 import AppIntents
+import KangChargeCore
+import KangChargeUI
 
 struct ChargerEntry: TimelineEntry {
     var date: Date
     var snapshot: ChargerSnapshot
+    var energySummary: EnergySummary
     var isStale: Bool
     var errorMessage: String?
     var needsSetup = false
 }
 
-// MARK: - Views
+// MARK: - Live Power Widget Views
 
 struct ChargerWidgetView: View {
     @Environment(\.widgetFamily) private var family
@@ -22,207 +25,474 @@ struct ChargerWidgetView: View {
                 WidgetSetupPrompt()
             } else {
                 switch family {
-                case .systemSmall: SmallWidget(entry: entry)
-                case .systemMedium: MediumWidget(entry: entry)
-                default: LargeWidget(entry: entry)
+                case .systemSmall: SmallPowerWidget(entry: entry)
+                case .systemMedium: MediumPowerWidget(entry: entry)
+                default: LargePowerWidget(entry: entry)
                 }
             }
         }
-        .foregroundStyle(Theme.ink)
+        .opacity(entry.isStale && !entry.needsSetup ? 0.65 : 1)
         .containerBackground(for: .widget) {
-            WidgetBackground()
+            WidgetSurfaceBackground()
         }
     }
 }
 
-struct WidgetBackground: View {
-    var body: some View { Theme.cream }
-}
-
-struct WidgetHeader: View {
-    var entry: ChargerEntry
-    var showRefresh = false
-    var showTime = true
-    var showBadge = true
+struct WidgetSurfaceBackground: View {
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 5) {
-            Text(entry.snapshot.deviceName)
-                .font(.system(size: 13, weight: .heavy))
-                .lineLimit(1)
-            if showBadge {
-            Text(entry.isStale ? "离线" : "在线")
-                .font(.system(size: 8, weight: .bold))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 4)
-                .padding(.vertical, 1)
-                .background(RoundedRectangle(cornerRadius: 3).fill(entry.isStale ? Theme.gray : Theme.green))
+        KCStyle.canvasBackground(for: colorScheme)
+            .overlay(alignment: .topTrailing) {
+                RadialGradient(
+                    colors: [KCStyle.accent.opacity(colorScheme == .dark ? 0.08 : 0.05), .clear],
+                    center: .topTrailing,
+                    startRadius: 0,
+                    endRadius: 210
+                )
             }
+    }
+}
+
+struct SmallPowerWidget: View {
+    var entry: ChargerEntry
+    private var snapshot: ChargerSnapshot { entry.snapshot }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 5) {
+                Image(systemName: "bolt.fill")
+                    .foregroundStyle(KCStyle.accent)
+                    .widgetAccentable()
+                Text(snapshot.deviceName)
+                    .lineLimit(1)
+            }
+            .font(.caption.weight(.medium))
+            .foregroundStyle(.secondary)
+
+            Spacer(minLength: 0)
+
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                Text(KCFormat.watts(snapshot.totalPower))
+                    .font(.system(size: 38, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .minimumScaleFactor(0.55)
+                    .lineLimit(1)
+                    .widgetAccentable()
+                Text("W")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+            }
+
+            Text("of \(KCFormat.watts(snapshot.maxPower)) W")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+
+            KCLoadBar(
+                fraction: snapshot.maxPower > 0 ? snapshot.totalPower / snapshot.maxPower : 0,
+                color: KCStyle.accent,
+                height: 5
+            )
+
             Spacer(minLength: 2)
-            if showTime {
-                Text(entry.snapshot.fetchedAt, style: .time)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(Theme.gray)
+
+            HStack(spacing: 4) {
+                ForEach(snapshot.ports) { port in
+                    Capsule()
+                        .fill(port.isCharging ? KCStyle.charging : (port.enabled ? Color.primary.opacity(0.18) : Color.primary.opacity(0.08)))
+                        .frame(height: 3.5)
+                }
             }
-            if showRefresh {
+
+            HStack {
+                Text(Locale.kcPrefersChinese ? "\(snapshot.chargingCount) 口充电" : "\(snapshot.chargingCount) charging")
+                Spacer(minLength: 2)
+                if entry.isStale {
+                    Text(snapshot.fetchedAt, style: .relative)
+                } else {
+                    Text(Locale.kcPrefersChinese ? "在线" : "Live")
+                        .foregroundStyle(KCStyle.charging)
+                }
+            }
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+        }
+    }
+}
+
+struct MediumPowerWidget: View {
+    var entry: ChargerEntry
+    private var snapshot: ChargerSnapshot { entry.snapshot }
+
+    var body: some View {
+        HStack(spacing: 18) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 5) {
+                    Image(systemName: "bolt.fill")
+                        .foregroundStyle(KCStyle.accent)
+                        .widgetAccentable()
+                    Text(snapshot.deviceName)
+                        .lineLimit(1)
+                }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+
+                Spacer(minLength: 0)
+
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    Text(KCFormat.watts(snapshot.totalPower))
+                        .font(.system(size: 38, weight: .semibold, design: .rounded))
+                        .monospacedDigit()
+                        .minimumScaleFactor(0.55)
+                        .lineLimit(1)
+                        .widgetAccentable()
+                    Text("W")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
+                }
+
+                Text("of \(KCFormat.watts(snapshot.maxPower)) W")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+
+                KCLoadBar(
+                    fraction: snapshot.maxPower > 0 ? snapshot.totalPower / snapshot.maxPower : 0,
+                    color: KCStyle.accent,
+                    height: 5
+                )
+
+                HStack(spacing: 5) {
+                    Circle()
+                        .fill(entry.isStale ? Color.secondary : KCStyle.charging)
+                        .frame(width: 5, height: 5)
+                    Text(Locale.kcPrefersChinese ? "\(snapshot.chargingCount) 口充电" : "\(snapshot.chargingCount) charging")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack(spacing: 8) {
+                ForEach(snapshot.ports) { port in
+                    HStack(spacing: 6) {
+                        Text(KCFormat.portBadgeName(port))
+                            .font(.caption2.weight(.semibold))
+                            .frame(width: 20, alignment: .leading)
+                            .foregroundStyle(port.enabled ? .primary : .secondary)
+                        KCLoadBar(
+                            fraction: port.enabled && port.maxPower > 0 ? port.power / port.maxPower : 0,
+                            color: KCStyle.portTint(for: port),
+                            height: 4
+                        )
+                        Text(port.enabled ? "\(KCFormat.watts(port.power)) W" : (Locale.kcPrefersChinese ? "关" : "Off"))
+                            .font(.caption2.weight(.medium))
+                            .monospacedDigit()
+                            .foregroundStyle(port.isCharging ? .primary : .secondary)
+                            .frame(width: 44, alignment: .trailing)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+}
+
+struct LargePowerWidget: View {
+    var entry: ChargerEntry
+    private var snapshot: ChargerSnapshot { entry.snapshot }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                HStack(spacing: 5) {
+                    Image(systemName: "bolt.fill")
+                        .foregroundStyle(KCStyle.accent)
+                        .widgetAccentable()
+                    Text(snapshot.deviceName)
+                        .lineLimit(1)
+                }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+
+                Spacer()
+
+                if entry.isStale {
+                    Text(snapshot.fetchedAt, style: .relative)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(Locale.kcPrefersChinese ? "在线" : "Live")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(KCStyle.charging)
+                }
+
                 Button(intent: RefreshChargerIntent()) {
                     Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(Theme.orange)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
             }
-        }
-    }
-}
 
-struct BigPower: View {
-    var watts: Double
-    var size: CGFloat
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("实时充电功率")
-                .font(.system(size: size * 0.32, weight: .semibold))
-            HStack(alignment: .firstTextBaseline, spacing: 1) {
-                Text(Format.watts(watts)).font(.system(size: size, weight: .heavy)).monospacedDigit()
-                Text("W").font(.system(size: size * 0.68, weight: .heavy))
-            }
-            .foregroundStyle(Theme.orange)
-            .lineLimit(1)
-            .minimumScaleFactor(0.6)
-            .widgetAccentable()
-        }
-    }
-}
-
-struct SmallWidget: View {
-    var entry: ChargerEntry
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            WidgetHeader(entry: entry, showTime: false)
-            Text("CoCan Mirror")
-                .font(.system(size: 9, weight: .heavy).italic())
-                .foregroundStyle(Theme.orange)
-            Spacer(minLength: 4)
-            BigPower(watts: entry.snapshot.totalPower, size: 30)
-            Spacer(minLength: 6)
-            HStack(spacing: 4) {
-                ForEach(entry.snapshot.ports) { port in
-                    VStack(spacing: 3) {
-                        Text(port.connector == "A" ? "A" : port.name)
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(port.enabled ? Theme.ink : Theme.gray)
-                        Capsule()
-                            .fill(port.isCharging ? Theme.orange : (port.enabled ? Theme.orange.opacity(0.3) : Color(hex: 0xE1E1E1)))
-                            .frame(height: 4)
+            HStack(alignment: .bottom, spacing: 14) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Text(KCFormat.watts(snapshot.totalPower))
+                            .font(.system(size: 36, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .lineLimit(1)
+                            .widgetAccentable()
+                        Text("W")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
                     }
+                    Text(Locale.kcPrefersChinese ? "\(snapshot.chargingCount) 口充电 · 今日 \(KCFormat.energy(wattHours: entry.energySummary.todayWattHours))" : "\(snapshot.chargingCount) charging · Today \(KCFormat.energy(wattHours: entry.energySummary.todayWattHours))")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
                 }
+                Spacer(minLength: 4)
+                WidgetSparkline(points: snapshot.history.map(\.watts), color: KCStyle.accent)
+                    .frame(width: 120, height: 38)
             }
-        }
-    }
-}
 
-struct MediumWidget: View {
-    var entry: ChargerEntry
-
-    var body: some View {
-        HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 0) {
-                WidgetHeader(entry: entry, showTime: false, showBadge: false)
-                Text("CoCan Mirror")
-                    .font(.system(size: 9, weight: .heavy).italic())
-                    .foregroundStyle(Theme.orange)
-                Spacer(minLength: 2)
-                BigPower(watts: entry.snapshot.totalPower, size: 28)
-                Text("\(entry.snapshot.chargingCount) 口充电 · 已用 \(usedPercent)%")
-                    .font(.system(size: 9, weight: .medium))
-                    .foregroundStyle(Theme.gray)
-            }
-            .frame(width: 112, alignment: .leading)
-
-            CableDiagram(ports: entry.snapshot.ports, chipScale: 0.62, chargerScale: 1.0, cableWidth: 3)
-        }
-    }
-
-    private var usedPercent: Int {
-        entry.snapshot.maxPower > 0 ? Int((entry.snapshot.totalPower / entry.snapshot.maxPower * 100).rounded()) : 0
-    }
-}
-
-struct LargeWidget: View {
-    var entry: ChargerEntry
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            WidgetHeader(entry: entry, showRefresh: true)
-
-            ZStack(alignment: .bottomLeading) {
-                CableDiagram(ports: entry.snapshot.ports, chipScale: 0.78, chargerScale: 1.25, cableWidth: 4)
-                BigPower(watts: entry.snapshot.totalPower, size: 30)
-            }
-            .frame(height: 168)
-            .padding(10)
-            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white))
+            Divider()
 
             VStack(spacing: 0) {
-                ForEach(entry.snapshot.ports) { port in
-                    WidgetPortRow(port: port)
-                    if port.index != entry.snapshot.ports.last?.index {
-                        Rectangle().fill(Theme.line).frame(height: 0.5)
+                ForEach(snapshot.ports) { port in
+                    HStack(spacing: 8) {
+                        Text(KCFormat.portBadgeName(port))
+                            .font(.caption2.weight(.semibold))
+                            .frame(width: 24, height: 24)
+                            .foregroundStyle(port.isCharging ? Color.white : KCStyle.portTint(for: port))
+                            .background {
+                                Circle().fill(port.isCharging ? KCStyle.charging : Color.primary.opacity(0.06))
+                            }
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(port.deviceName ?? (port.enabled ? (KCFormat.protocolTag(port.protocolName) ?? (Locale.kcPrefersChinese ? "待机" : "Idle")) : (Locale.kcPrefersChinese ? "已关闭" : "Off")))
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(port.enabled ? .primary : .secondary)
+                                .lineLimit(1)
+                        }
+                        Spacer(minLength: 4)
+                        Text(port.enabled ? "\(KCFormat.watts(port.power)) W" : "—")
+                            .font(.caption.weight(.semibold))
+                            .monospacedDigit()
+                            .foregroundStyle(port.isCharging ? .primary : .secondary)
+
+                        Button(intent: SetPortPowerIntent(portIndex: port.index, turnOn: !port.enabled)) {
+                            WidgetSwitchPill(isOn: port.enabled)
+                        }
+                        .buttonStyle(.plain)
+                        .widgetAccentable()
+                    }
+                    .padding(.vertical, 5.5)
+
+                    if port.index != snapshot.ports.last?.index {
+                        Divider().padding(.leading, 32)
                     }
                 }
             }
-            .padding(.horizontal, 10)
-            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.white))
         }
     }
 }
 
-struct WidgetPortRow: View {
-    var port: PortSnapshot
+struct WidgetSwitchPill: View {
+    var isOn: Bool
 
     var body: some View {
-        HStack(spacing: 8) {
-            Text(port.connector == "A" ? "A" : port.name)
-                .font(.system(size: 10, weight: .heavy))
-                .foregroundStyle(port.enabled ? Theme.orange : Theme.gray)
-                .frame(width: 22, alignment: .leading)
-            Text(port.deviceName ?? (port.enabled ? (port.protocolName ?? "空闲") : "已关闭"))
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(port.enabled ? Theme.ink : Theme.gray)
-                .lineLimit(1)
-            Spacer(minLength: 4)
-            Text(port.enabled ? "\(Format.watts(port.power))W" : "OFF")
-                .font(.system(size: 12, weight: .heavy))
-                .monospacedDigit()
-                .foregroundStyle(port.isCharging ? Theme.orange : (port.enabled ? Theme.ink : Theme.gray))
-            Button(intent: SetPortPowerIntent(portIndex: port.index, turnOn: !port.enabled)) {
-                Image(systemName: "power")
-                    .font(.system(size: 9, weight: .heavy))
-                    .foregroundStyle(port.enabled ? Color.white : Theme.gray)
-                    .frame(width: 20, height: 20)
-                    .background(Circle().fill(port.enabled ? Theme.orange : Color(hex: 0xEDEDED)))
-            }
-            .buttonStyle(.plain)
-            .widgetAccentable()
+        ZStack(alignment: isOn ? .trailing : .leading) {
+            Capsule()
+                .fill(isOn ? KCStyle.charging : Color.primary.opacity(0.16))
+            Circle()
+                .fill(Color.white)
+                .padding(2)
+                .shadow(color: .black.opacity(0.18), radius: 1, y: 0.5)
         }
-        .padding(.vertical, 4.5)
+        .frame(width: 30, height: 18)
+    }
+}
+
+struct WidgetSparkline: View {
+    var points: [Double]
+    var color: Color
+
+    var body: some View {
+        GeometryReader { geo in
+            if points.count >= 2 {
+                let minV = min(points.min() ?? 0, 0)
+                let maxV = max(points.max() ?? 1, minV + 10)
+                let span = maxV - minV
+                let coords: [CGPoint] = points.enumerated().map { idx, val in
+                    let x = geo.size.width * CGFloat(idx) / CGFloat(points.count - 1)
+                    let y = geo.size.height * (1 - CGFloat((val - minV) / span))
+                    return CGPoint(x: x, y: y)
+                }
+                ZStack {
+                    Path { p in
+                        p.move(to: CGPoint(x: 0, y: geo.size.height))
+                        for pt in coords { p.addLine(to: pt) }
+                        p.addLine(to: CGPoint(x: geo.size.width, y: geo.size.height))
+                        p.closeSubpath()
+                    }
+                    .fill(LinearGradient(colors: [color.opacity(0.22), color.opacity(0.0)], startPoint: .top, endPoint: .bottom))
+
+                    Path { p in
+                        p.move(to: coords[0])
+                        for pt in coords.dropFirst() { p.addLine(to: pt) }
+                    }
+                    .stroke(color, style: StrokeStyle(lineWidth: 1.8, lineCap: .round, lineJoin: .round))
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Daily Energy Heatmap Widget (GitHub Contribution Style)
+
+struct EnergyHeatmapWidgetView: View {
+    @Environment(\.widgetFamily) private var family
+    var entry: ChargerEntry
+    var overrideFamily: WidgetFamily? = nil
+
+    private var effectiveFamily: WidgetFamily { overrideFamily ?? family }
+
+    var body: some View {
+        Group {
+            if entry.needsSetup {
+                WidgetSetupPrompt()
+            } else if effectiveFamily == .systemLarge {
+                largeHeatmap
+            } else {
+                mediumHeatmap
+            }
+        }
+        .containerBackground(for: .widget) {
+            WidgetSurfaceBackground()
+        }
+    }
+
+    private var mediumHeatmap: some View {
+        let trimmed = EnergySummary(days: Array(entry.energySummary.days.suffix(26 * 7)), todayKey: entry.energySummary.days.last?.dayKey ?? "")
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Label(Locale.kcPrefersChinese ? "每日用电" : "Daily Energy", systemImage: "bolt.fill")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Spacer()
+                Text(KCFormat.energy(wattHours: trimmed.todayWattHours))
+                    .font(.caption.weight(.semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(KCStyle.charging)
+            }
+
+            EnergyHeatmapView(
+                summary: trimmed,
+                tint: KCStyle.charging,
+                cellSpacing: 2.5,
+                cornerRadius: 2.5,
+                maxCellSize: 10.5,
+                interactive: false,
+                showLegend: false,
+                showHeader: false,
+                showAxisLabels: false
+            )
+
+            HStack {
+                Text(Locale.kcPrefersChinese ? "近 7 天 \(KCFormat.energy(wattHours: trimmed.last7DaysWattHours))" : "7d \(KCFormat.energy(wattHours: trimmed.last7DaysWattHours))")
+                Spacer()
+                Text(Locale.kcPrefersChinese ? "合计 \(KCFormat.energy(wattHours: trimmed.totalWattHours))" : "Total \(KCFormat.energy(wattHours: trimmed.totalWattHours))")
+            }
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .monospacedDigit()
+        }
+    }
+
+    private var largeHeatmap: some View {
+        let trimmed = EnergySummary(days: Array(entry.energySummary.days.suffix(20 * 7)), todayKey: entry.energySummary.days.last?.dayKey ?? "")
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(Locale.kcPrefersChinese ? "每日用电量" : "Daily Energy")
+                        .font(.headline)
+                    Text(entry.snapshot.deviceName)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(KCFormat.energy(wattHours: trimmed.todayWattHours))
+                        .font(.title3.weight(.semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(KCStyle.charging)
+                    Text(Locale.kcPrefersChinese ? "今日" : "Today")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            EnergyHeatmapView(
+                summary: trimmed,
+                tint: KCStyle.charging,
+                cellSpacing: 3,
+                cornerRadius: 3,
+                maxCellSize: 14,
+                interactive: false,
+                showLegend: true,
+                showHeader: false,
+                showAxisLabels: false
+            )
+
+            Divider()
+
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(Locale.kcPrefersChinese ? "近 7 天" : "Last 7 Days")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Text(KCFormat.energy(wattHours: trimmed.last7DaysWattHours))
+                        .font(.callout.weight(.semibold))
+                        .monospacedDigit()
+                }
+                Spacer()
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(Locale.kcPrefersChinese ? "单日峰值" : "Peak Day")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Text(KCFormat.energy(wattHours: trimmed.peakWattHours))
+                        .font(.callout.weight(.semibold))
+                        .monospacedDigit()
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(Locale.kcPrefersChinese ? "连续记录" : "Streak")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Text(Locale.kcPrefersChinese ? "\(trimmed.currentStreak) 天" : "\(trimmed.currentStreak) days")
+                        .font(.callout.weight(.semibold))
+                        .monospacedDigit()
+                }
+            }
+        }
     }
 }
 
 struct WidgetSetupPrompt: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Image(systemName: "bolt.slash.fill")
-                .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(Theme.orange)
+            Image(systemName: "bolt.slash")
+                .font(.title3)
+                .foregroundStyle(.secondary)
             Spacer(minLength: 0)
-            Text("还没有连接小电拼").font(.system(size: 13, weight: .heavy))
-            Text("打开 Kang Charge，粘贴 MCP 地址完成设置。")
-                .font(.system(size: 11))
-                .foregroundStyle(Theme.gray)
+            Text("SugarWatt")
+                .font(.callout.weight(.semibold))
+            Text(Locale.kcPrefersChinese ? "打开 SugarWatt 粘贴 MCP 地址完成连接。" : "Open SugarWatt to connect your charger.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }

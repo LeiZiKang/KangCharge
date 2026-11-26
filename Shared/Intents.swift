@@ -1,32 +1,39 @@
 import AppIntents
 import WidgetKit
+import KangChargeCore
 
 enum ChargerPort: Int, AppEnum {
     case a = 1, c1, c2, c3, c4
 
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "端口"
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Port"
     static var caseDisplayRepresentations: [ChargerPort: DisplayRepresentation] = [
-        .a: "A 口", .c1: "C1 口", .c2: "C2 口", .c3: "C3 口", .c4: "C4 口",
+        .a: "USB-A", .c1: "C1", .c2: "C2", .c3: "C3", .c4: "C4",
     ]
 }
 
-extension ChargingStrategy: AppEnum {
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "充电策略"
-    static var caseDisplayRepresentations: [ChargingStrategy: DisplayRepresentation] = [
-        .fast: "超速充（FluxAI 自由流）",
-        .slow: "睡眠慢充",
-        .usbA: "小家电模式",
-        .highPerformance: "无线损",
-        .singlePort: "独享 · C1",
+enum StrategyChoice: Int, AppEnum {
+    case smart = 0, sleep = 1, smallAppliance = 6, performance = 7, c1Only = 8
+
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Charging Mode"
+    static var caseDisplayRepresentations: [StrategyChoice: DisplayRepresentation] = [
+        .smart: "Smart",
+        .sleep: "Sleep",
+        .smallAppliance: "Small Appliance",
+        .performance: "Performance",
+        .c1Only: "C1 Only",
     ]
+
+    var strategy: ChargingStrategy {
+        ChargingStrategy(rawValue: rawValue) ?? .fast
+    }
 }
 
 struct SetPortPowerIntent: AppIntent {
-    static var title: LocalizedStringResource = "开关小电拼端口"
-    static var description = IntentDescription("打开或关闭 Kang Charge 的某个充电端口。")
+    static var title: LocalizedStringResource = "Toggle Charger Port"
+    static var description = IntentDescription("Turn a SugarWatt charger port on or off.")
 
-    @Parameter(title: "端口") var port: ChargerPort
-    @Parameter(title: "打开", default: true) var turnOn: Bool
+    @Parameter(title: "Port") var port: ChargerPort
+    @Parameter(title: "Turn On", default: true) var turnOn: Bool
 
     init() {}
 
@@ -36,7 +43,7 @@ struct SetPortPowerIntent: AppIntent {
     }
 
     static var parameterSummary: some ParameterSummary {
-        Summary("将 \(\.$port) 设为 \(\.$turnOn)")
+        Summary("Set \(\.$port) to \(\.$turnOn)")
     }
 
     func perform() async throws -> some IntentResult {
@@ -55,8 +62,8 @@ struct SetPortPowerIntent: AppIntent {
 }
 
 struct RefreshChargerIntent: AppIntent {
-    static var title: LocalizedStringResource = "刷新小电拼状态"
-    static var description = IntentDescription("从 Kang Charge 拉取最新的充电数据。")
+    static var title: LocalizedStringResource = "Refresh Charger Status"
+    static var description = IntentDescription("Fetch the latest power readings from your charger.")
 
     func perform() async throws -> some IntentResult {
         _ = try await ChargerAPI.current().fetchSnapshot()
@@ -66,16 +73,18 @@ struct RefreshChargerIntent: AppIntent {
 }
 
 struct SetChargingStrategyIntent: AppIntent {
-    static var title: LocalizedStringResource = "切换小电拼充电策略"
-    static var description = IntentDescription("切换 Kang Charge 的充电策略。")
+    static var title: LocalizedStringResource = "Set Charging Mode"
+    static var description = IntentDescription("Switch the charging strategy on your charger.")
 
-    @Parameter(title: "策略") var strategy: ChargingStrategy
+    @Parameter(title: "Mode") var mode: StrategyChoice
 
     init() {}
-    init(strategy: ChargingStrategy) { self.strategy = strategy }
+    init(strategy: ChargingStrategy) {
+        self.mode = StrategyChoice(rawValue: strategy.rawValue) ?? .smart
+    }
 
     func perform() async throws -> some IntentResult {
-        try await ChargerAPI.current().setStrategy(strategy)
+        try await ChargerAPI.current().setStrategy(mode.strategy)
         WidgetCenter.shared.reloadAllTimelines()
         return .result()
     }

@@ -1,152 +1,346 @@
 import SwiftUI
+import KangChargeCore
+import KangChargeUI
 
 struct MenuBarPanel: View {
     @EnvironmentObject private var store: ChargerStore
     @Environment(\.openWindow) private var openWindow
+    var onOpenMainWindow: (() -> Void)? = nil
 
     var body: some View {
-        if store.isConfigured { panel } else { setupPrompt }
+        if store.isConfigured {
+            connectedPanel
+        } else {
+            setupPrompt
+        }
     }
 
     private var setupPrompt: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("还没有连接小电拼").font(.system(size: 16, weight: .heavy))
-            Text("打开主窗口，粘贴 CANDYSIGN App 里的 MCP 地址即可开始。")
-                .font(.system(size: 12))
-                .foregroundStyle(Theme.gray)
-            HStack {
-                Button {
-                    NSApp.activate(ignoringOtherApps: true)
-                    openWindow(id: "main")
-                } label: {
-                    Text("开始设置")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 7)
-                        .background(Capsule().fill(Theme.orange))
+            HStack(spacing: 10) {
+                Image(systemName: "bolt.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(KCStyle.accent)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("SugarWatt")
+                        .font(.headline)
+                    Text(L("Not connected yet", "尚未连接充电器"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                .buttonStyle(.plain)
+            }
+            Text(L("Open the main window and paste your CANDYSIGN MCP address to get started.", "打开主窗口并粘贴 CANDYSIGN 的 MCP 地址即可开始。"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            HStack {
+                Button(L("Set Up", "开始设置")) {
+                    openMainWindow()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
                 Spacer()
-                CircleButton(symbol: "power", help: "退出 Kang Charge") { NSApp.terminate(nil) }
+                Button(L("Quit", "退出")) { NSApp.terminate(nil) }
+                    .controlSize(.small)
             }
         }
-        .padding(14)
-        .frame(width: 300)
-        .background(Theme.cream)
-        .foregroundStyle(Theme.ink)
+        .padding(16)
+        .frame(width: 290)
     }
 
-    private var panel: some View {
+    private var connectedPanel: some View {
         VStack(alignment: .leading, spacing: 12) {
+            // Header
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("CoCan Mirror").font(.system(size: 11, weight: .heavy).italic()).foregroundStyle(Theme.orange)
-                    Text(store.deviceName).font(.system(size: 20, weight: .heavy))
                     HStack(spacing: 6) {
-                        StatusBadge()
-                        Text("\(store.snapshot?.chargingCount ?? 0) 口充电中").font(.system(size: 11)).foregroundStyle(Theme.gray)
+                        StatusDot(connection: store.connection)
+                        Text(store.deviceName)
+                            .font(.headline)
+                            .lineLimit(1)
                     }
+                    Text(L(
+                        "\(store.snapshot?.chargingCount ?? 0) charging · Today \(KCFormat.energy(wattHours: store.energySummary.todayWattHours))",
+                        "\(store.snapshot?.chargingCount ?? 0) 口充电中 · 今日 \(KCFormat.energy(wattHours: store.energySummary.todayWattHours))"
+                    ))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
                 }
                 Spacer()
-                VStack(alignment: .trailing, spacing: 0) {
-                    Text("实时充电功率").font(.system(size: 11, weight: .semibold))
-                    Text("\(Format.watts(store.totalPower))W")
-                        .font(.system(size: 30, weight: .heavy))
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text(KCFormat.watts(store.totalPower))
+                        .font(.system(size: 28, weight: .semibold, design: .rounded))
                         .monospacedDigit()
-                        .foregroundStyle(Theme.orange)
                         .contentTransition(.numericText(value: store.totalPower))
+                    Text("W")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
                 }
             }
 
-            HStack(spacing: 6) {
-                ForEach(store.ports) { port in
-                    PortChip(port: port, scale: 0.9)
-                }
-            }
-            .candyCard(padding: 10, radius: 12)
+            KCLoadBar(
+                fraction: store.maxPower > 0 ? store.totalPower / store.maxPower : 0,
+                color: KCStyle.accent,
+                height: 5
+            )
 
-            VStack(spacing: 0) {
+            Divider()
+
+            // Ports
+            VStack(spacing: 6) {
                 ForEach(store.ports) { port in
-                    HStack(spacing: 10) {
-                        PortTag(port: port, size: 26)
-                        Text(port.deviceName ?? (port.enabled ? (port.protocolName ?? "空闲") : "已关闭"))
-                            .font(.system(size: 12, weight: .semibold))
+                    HStack(spacing: 8) {
+                        PortBadgeCircle(port: port, size: 22)
+                        Text(port.deviceName ?? (port.isCharging ? (KCFormat.protocolTag(port.protocolName) ?? KCFormat.portDisplayName(port)) : KCFormat.portDisplayName(port)))
+                            .font(.callout)
+                            .foregroundStyle(port.isCharging ? .primary : .secondary)
                             .lineLimit(1)
-                        Spacer()
-                        CandyToggle(isOn: Binding(get: { port.enabled }, set: { store.setPort(port.index, on: $0) }),
-                                    label: "\(Format.portLabel(port)) 供电", scale: 0.85)
+                        Spacer(minLength: 4)
+                        Text(port.isCharging ? "\(KCFormat.watts(port.power)) W" : "—")
+                            .font(.callout.weight(.medium))
+                            .monospacedDigit()
+                            .foregroundStyle(port.isCharging ? .primary : .secondary)
+                        if port.isCharging {
+                            KCSwitch(isOn: Binding(
+                                get: { true },
+                                set: { if !$0 { store.setPort(port.index, on: false) } }
+                            ), scale: 0.88)
+                            .disabled(store.busy.contains("port-\(port.index)"))
+                        } else {
+                            Button(L("Idle", "空闲")) {
+                                store.setPort(port.index, on: true)
+                            }
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.tertiary)
+                            .buttonStyle(.plain)
+                            .frame(width: 30, alignment: .trailing)
+                            .disabled(store.busy.contains("port-\(port.index)"))
+                        }
                     }
-                    .padding(.vertical, 5)
-                    if port.index != store.ports.last?.index { Divider().overlay(Theme.line) }
                 }
             }
-            .candyCard(padding: 10, radius: 12)
 
+            Divider()
+
+            // Quick modes
             HStack(spacing: 6) {
                 ForEach([ChargingStrategy.fast, .slow, .highPerformance]) { strategy in
-                    ModePill(title: strategy.shortTitle, symbol: strategy.symbol, selected: store.lastStrategy == strategy, busy: store.busy.contains("strategy")) {
+                    let selected = store.lastStrategy == strategy
+                    Button {
                         store.setStrategy(strategy)
+                    } label: {
+                        Text(strategy.localizedName)
+                            .font(.caption.weight(.medium))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 5)
+                            .background(
+                                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                    .fill(selected ? KCStyle.accent.opacity(0.16) : Color.primary.opacity(0.05))
+                            )
+                            .foregroundStyle(selected ? KCStyle.accent : .primary)
                     }
+                    .buttonStyle(.plain)
+                    .disabled(store.busy.contains("strategy"))
                 }
-                Spacer(minLength: 0)
             }
 
+            Divider()
+
+            // Footer actions
             HStack(spacing: 8) {
+                Button(L("Open SugarWatt", "打开主窗口")) {
+                    openMainWindow()
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(KCStyle.accent)
+                .controlSize(.small)
+
+                Spacer()
+
                 Button {
-                    NSApp.activate(ignoringOtherApps: true)
-                    openWindow(id: "main")
+                    Task { await store.refreshAll() }
                 } label: {
-                    Text("打开主窗口")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 7)
-                        .background(Capsule().fill(Theme.orange))
+                    Image(systemName: "arrow.clockwise")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .frame(width: 24, height: 24)
                 }
                 .buttonStyle(.plain)
-                Spacer()
-                CircleButton(symbol: "arrow.clockwise", help: "刷新") { Task { await store.refreshAll() } }
-                CircleButton(symbol: "power", help: "退出 Kang Charge") { NSApp.terminate(nil) }
+                .help(L("Refresh", "刷新"))
+
+                Button {
+                    NSApp.terminate(nil)
+                } label: {
+                    Image(systemName: "power")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .frame(width: 24, height: 24)
+                }
+                .buttonStyle(.plain)
+                .help(L("Quit SugarWatt", "退出 SugarWatt"))
             }
 
             if let toast = store.toast {
-                ToastView(toast: toast).frame(maxWidth: .infinity)
+                Text(toast.message)
+                    .font(.caption)
+                    .foregroundStyle(toast.isError ? KCStyle.hot : .secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding(14)
-        .frame(width: 360)
-        .background(Theme.cream)
-        .foregroundStyle(Theme.ink)
+        .frame(width: 320)
+    }
+
+    private func openMainWindow() {
+        if let onOpenMainWindow {
+            onOpenMainWindow()
+        } else {
+            NSApp.activate(ignoringOtherApps: true)
+            openWindow(id: "main")
+        }
     }
 }
 
+// MARK: - Native macOS Settings
+
 struct SettingsView: View {
     @EnvironmentObject private var store: ChargerStore
+    @EnvironmentObject private var visibility: AppVisibility
+    @EnvironmentObject private var updater: UpdateChecker
     @State private var confirmDisconnect = false
+    @State private var confirmResetEnergy = false
+    @State private var iCloudSync = AppConfig.iCloudEnergySyncEnabled
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Text("小电拼连接").font(.system(size: 18, weight: .heavy))
-            ConnectionForm(submitTitle: "保存并重新连接")
-            Divider()
-            HStack {
-                Text("地址只保存在本机。更换设备时粘贴新地址即可。")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Theme.gray)
-                Spacer()
-                Button("断开并清除数据", role: .destructive) { confirmDisconnect = true }
-                    .disabled(!store.isConfigured)
+        TabView {
+            generalTab
+                .tabItem { Label(L("General", "通用"), systemImage: "gearshape") }
+
+            connectionTab
+                .tabItem { Label(L("Connection", "连接"), systemImage: "bolt.horizontal") }
+
+            #if !APP_STORE
+            updatesTab
+                .tabItem { Label(L("Updates", "更新"), systemImage: "arrow.down.circle") }
+            #endif
+        }
+        .frame(width: 480, height: 340)
+    }
+
+    private var generalTab: some View {
+        Form {
+            Section(L("App Presence", "显示方式")) {
+                Toggle(L("Keep in Dock", "在 Dock 栏常驻"), isOn: $visibility.showInDock)
+                    .disabled(!visibility.showInMenuBar)
+                Toggle(L("Show in Menu Bar", "在菜单栏显示"), isOn: $visibility.showInMenuBar)
+                    .disabled(!visibility.showInDock)
+                Text(L(
+                    "At least one of Dock or Menu Bar stays enabled so you can always reach SugarWatt. Closing the window keeps polling in the background.",
+                    "Dock 与菜单栏至少保留一项，防止无法找回窗口。关闭主窗口后程序会在后台继续记录用电量。"
+                ))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+
+            Section(L("Daily Energy History", "每日用电量记录")) {
+                Toggle(L("Sync daily energy via iCloud", "通过 iCloud 同步每日用电量"), isOn: Binding(
+                    get: { iCloudSync },
+                    set: { newValue in
+                        iCloudSync = newValue
+                        AppConfig.iCloudEnergySyncEnabled = newValue
+                        if newValue {
+                            EnergyLedger.shared.pullFromCloud()
+                            EnergyLedger.shared.pushToCloudNow()
+                        }
+                    }
+                ))
+                if !EnergyLedger.shared.isCloudAvailable {
+                    Text(L(
+                        "Local-only in this unsigned/personal build. Signed builds with iCloud KVS enabled sync automatically with SugarWatt for iOS.",
+                        "当前本地构建仅保存在本机。开启 iCloud KVS 签名的构建会自动与 iOS 版同步热力图数据。"
+                    ))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+                Button(L("Clear Energy History…", "清除历史用电记录…"), role: .destructive) {
+                    confirmResetEnergy = true
+                }
             }
         }
-        .padding(24)
-        .frame(width: 500)
-        .background(Color.white)
-        .foregroundStyle(Theme.ink)
-        .confirmationDialog("断开小电拼？", isPresented: $confirmDisconnect) {
-            Button("断开并清除", role: .destructive) { store.disconnect() }
-        } message: {
-            Text("会删除本机保存的 MCP 地址和缓存数据，小组件也会显示为未设置。")
+        .formStyle(.grouped)
+        .confirmationDialog(L("Clear daily energy history?", "清除所有每日用电量记录？"), isPresented: $confirmResetEnergy) {
+            Button(L("Clear History", "确认清除"), role: .destructive) { store.resetEnergyHistory() }
+            Button(L("Cancel", "取消"), role: .cancel) {}
         }
+    }
+
+    private var connectionTab: some View {
+        Form {
+            Section(L("Charger MCP Endpoint", "充电器 MCP 地址")) {
+                ConnectionForm(submitTitle: L("Save & Reconnect", "保存并重连"))
+            }
+
+            Section {
+                HStack {
+                    Text(L("Stored locally on this Mac only.", "地址仅保存在本机，不上传任何第三方服务器。"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button(L("Disconnect…", "断开连接…"), role: .destructive) {
+                        confirmDisconnect = true
+                    }
+                    .disabled(!store.isConfigured)
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .confirmationDialog(L("Disconnect this charger?", "断开充电器连接？"), isPresented: $confirmDisconnect) {
+            Button(L("Disconnect & Clear", "断开并清除"), role: .destructive) { store.disconnect() }
+            Button(L("Cancel", "取消"), role: .cancel) {}
+        } message: {
+            Text(L("Removes the saved MCP URL and cached readings from this Mac.", "将删除本机保存的 MCP 地址与缓存数据。"))
+        }
+    }
+
+    private var updatesTab: some View {
+        Form {
+            Section(L("Software Updates", "软件更新")) {
+                LabeledContent(L("Current Version", "当前版本"), value: updater.currentVersion)
+                Toggle(L("Automatically check for updates", "自动检查更新"), isOn: $updater.autoCheckEnabled)
+
+                HStack {
+                    Button(L("Check Now", "立即检查")) {
+                        Task { await updater.checkNow(silent: false) }
+                    }
+                    .disabled(updater.status == .checking)
+
+                    Spacer()
+
+                    switch updater.status {
+                    case .idle:
+                        EmptyView()
+                    case .checking:
+                        ProgressView().controlSize(.small)
+                    case .upToDate:
+                        Label(L("Up to date", "已是最新版本"), systemImage: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(KCStyle.charging)
+                    case .available(let version, let url, _):
+                        Link(L("Download v\(version)", "下载 v\(version)"), destination: url)
+                            .font(.caption.weight(.semibold))
+                    case .failed:
+                        Text(L("Couldn't reach GitHub", "无法检查更新"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            Section(L("Open Source", "开源信息")) {
+                Link(L("SugarWatt on GitHub", "GitHub 仓库"), destination: URL(string: "https://github.com/LeiZiKang/KangCharge")!)
+                LabeledContent(L("License", "开源协议"), value: "MIT")
+            }
+        }
+        .formStyle(.grouped)
     }
 }

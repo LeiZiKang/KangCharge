@@ -9,7 +9,7 @@ configFiles:
 packages:
   KangChargeCore:
     url: https://github.com/LeiZiKang/KangChargeCore.git
-    from: "1.0.4"
+    from: "1.0.5"
 settings:
   base:
     SWIFT_VERSION: "5.0"

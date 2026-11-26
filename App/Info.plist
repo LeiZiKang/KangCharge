@@ -26,6 +26,8 @@
 	<string>$(TeamIdentifierPrefix)$(BUNDLE_ID_PREFIX).kangcharge</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSHumanReadableCopyright</key>
 	<string>SugarWatt — Unofficial macOS Control Center for CANDYSIGN CoCan</string>
 </dict>

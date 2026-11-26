@@ -15,11 +15,13 @@
 		2B1239539EC6A4CF3C093DF8 /* AppVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2FE1373468F489C7955CFE5 /* AppVisibility.swift */; };
 		2C36B5547CCD483ACB259E87 /* PortViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0CA1481AB4EEB862E0A87E /* PortViews.swift */; };
 		49D430D875024A4677379E73 /* WidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D53D49E7C8A6001C2ADE314 /* WidgetViews.swift */; };
+		4C90F539B2D4D656DAEF6778 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 55D759E3597A44CD11BC1957 /* PrivacyInfo.xcprivacy */; };
 		5827DBEEB436A0A63FAE7E49 /* ChargerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09F9731D56D941E4FCD92E5 /* ChargerStore.swift */; };
 		5E86D45B08E531BC4B57AF19 /* KangChargeWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 456AAB5ED0B63F30259DAB7F /* KangChargeWidget.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		61325EA3B2448460067BAC18 /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871080D2F06EDD4B85B1DDF6 /* UpdateChecker.swift */; };
 		7F81A66316F7BB3404CBD765 /* Previews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98ABC35F1089837A90497C34 /* Previews.swift */; };
 		987C36018573A7902FF000D5 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A06BC5A25C3762BF5516715 /* Intents.swift */; };
+		9FBE663E48F80D8A654FF022 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 55D759E3597A44CD11BC1957 /* PrivacyInfo.xcprivacy */; };
 		A20594FFB197D7BE8652106A /* KangChargeWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AF9CC03063CF57E10601DA /* KangChargeWidget.swift */; };
 		AABC0BFB3918FEEC821F0C35 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EFCA5B0DCEB0D1F04FE5D2 /* DashboardView.swift */; };
 		AF3F19659D3C04E6AA961459 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A06BC5A25C3762BF5516715 /* Intents.swift */; };
@@ -65,6 +67,7 @@
 		373A31607700F255A8B4A5E3 /* KangChargeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KangChargeApp.swift; sourceTree = "<group>"; };
 		456AAB5ED0B63F30259DAB7F /* KangChargeWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KangChargeWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		46EFCA5B0DCEB0D1F04FE5D2 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		55D759E3597A44CD11BC1957 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		757D865CD8CD4FF56A895834 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7D53D49E7C8A6001C2ADE314 /* WidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetViews.swift; sourceTree = "<group>"; };
 		871080D2F06EDD4B85B1DDF6 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
@@ -142,6 +145,7 @@
 			isa = PBXGroup;
 			children = (
 				2A06BC5A25C3762BF5516715 /* Intents.swift */,
+				55D759E3597A44CD11BC1957 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -207,6 +211,7 @@
 			buildConfigurationList = 2195AA343A918FDC64DCA56C /* Build configuration list for PBXNativeTarget "KangChargeWidget" */;
 			buildPhases = (
 				F0209293610AC1BD554A6102 /* Sources */,
+				B30D750EB44D3C52DB9DF3D9 /* Resources */,
 				F4CCF418EEB46BE9B61004B2 /* Frameworks */,
 			);
 			buildRules = (
@@ -270,6 +275,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				CA1BCE0B0CA36DC408D6F45C /* Assets.xcassets in Resources */,
+				4C90F539B2D4D656DAEF6778 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B30D750EB44D3C52DB9DF3D9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9FBE663E48F80D8A654FF022 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -563,7 +577,7 @@
 			repositoryURL = "https://github.com/LeiZiKang/KangChargeCore.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.4;
+				minimumVersion = 1.0.5;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

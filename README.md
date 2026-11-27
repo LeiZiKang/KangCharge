@@ -28,6 +28,23 @@ SugarWatt is an independent, MIT open-source app. It talks directly to your char
 | --- | --- |
 | ![Large widget](docs/screenshots/widget-large-light.png) | ![Heatmap widget](docs/screenshots/widget-heatmap-medium-light.png) |
 
+## Architecture & How It Works
+
+```mermaid
+flowchart LR
+    MCP["CANDYSIGN Charger<br/>ionbridge-mcp (HTTP+SSE)"] <-->|"Direct HTTPS/SSE"| CORE["KangChargeCore + KangChargeUI"]
+    EQ["Read-Only JSON<br/>equivalents.json"] -.->|"Optional GET + offline fallback"| CORE
+    CORE --> MAC["SugarWatt for Mac<br/>Menu Bar · Window · Widgets"]
+    MAC <--> KC["Keychain & App Group"]
+    MAC <--> IC["Private iCloud KVS (Optional)"]
+```
+
+- **Zero relay backend**: Your MCP URL stays strictly in local Keychain; the Mac app polls your charger directly over HTTP+SSE.
+- **Shared Swift Package**: Core protocol, `EnergyLedger`, and reusable SwiftUI components live in [KangChargeCore](https://github.com/LeiZiKang/KangChargeCore).
+- **Simple read-only JSON**: Fun kWh comparisons are backed by a static JSON catalog ([`sugarwatt-equivalents`](https://github.com/LeiZiKang/sugarwatt-equivalents)) with full offline fallback.
+
+See the full architecture & runtime walkthrough in **[KangChargeCore/ARCHITECTURE.md](https://github.com/LeiZiKang/KangChargeCore/blob/main/ARCHITECTURE.md)**.
+
 ## Requirements
 
 - macOS 14 Sonoma or later

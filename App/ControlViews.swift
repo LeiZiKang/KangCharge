@@ -4,6 +4,38 @@ import KangChargeUI
 
 // MARK: - Inline Controls Canvas (v2.1 Tactile Hardware Deck)
 
+private enum AllocationPreset: String, CaseIterable, Identifiable {
+    case laptop
+    case even
+    case trio
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .laptop: return L("Laptop Priority", "笔记本优先")
+        case .even: return L("Split Evenly", "5 口均分")
+        case .trio: return L("Desk Trio", "桌搭三口")
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .laptop: return "laptopcomputer"
+        case .even: return "equal.circle"
+        case .trio: return "rectangle.3.group"
+        }
+    }
+
+    var tip: String {
+        switch self {
+        case .laptop: return L("Dedicates 100 W to C1 for MacBook fast charging, sharing the remaining 60 W with other ports.", "优先给 C1 分配 100 W 供笔记本快充，剩余 60 W 分配给其他端口。")
+        case .even: return L("Divides the full 160 W budget equally (32 W each) across all 5 ports.", "将 160 W 总功率平均分配给全部 5 个接口（每口 32 W）。")
+        case .trio: return L("Optimized for 3-device desks: 65 W (C1) + 45 W (C2) + 32 W (C3/C4), leaving unused ports off.", "专为三设备桌搭优化：65 W + 45 W + 32 W，闲置接口关闭。")
+        }
+    }
+}
+
 struct ControlsCanvas: View {
     var showBrightnessPreview: Bool = true
 
@@ -11,6 +43,10 @@ struct ControlsCanvas: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var confirmingStrategy: ChargingStrategy?
     @State private var allocationValues: [Int: Double] = [:]
+    @State private var initialAllocationValues: [Int: Double] = [:]
+    @State private var appliedPreset: AllocationPreset? = .even
+    @State private var draftPreset: AllocationPreset? = .even
+    @State private var hoveredPreset: AllocationPreset?
     @State private var hoveredPriority: StatusDisplayMode?
     @State private var hoveredIdle: IdleDisplay?
 
@@ -83,6 +119,9 @@ struct ControlsCanvas: View {
         .onAppear {
             if allocationValues.isEmpty {
                 distributeEvenly()
+                initialAllocationValues = allocationValues
+                appliedPreset = .even
+                draftPreset = .even
             }
         }
     }
@@ -464,17 +503,58 @@ struct ControlsCanvas: View {
         .opacity(store.display == nil ? 0.5 : 1)
     }
 
-    // MARK: - Temporary Power Allocation Card
+    // MARK: - Temporary Power Allocation Card (Live 160W Donut Chart + Physical USB-A/C Icons)
+
+    private var hasPendingAllocationChanges: Bool {
+        allocationValues != initialAllocationValues
+    }
+
+    private var appliedModeLabel: String {
+        appliedPreset?.title ?? L("Custom", "自定义")
+    }
+
+    private var draftModeLabel: String {
+        draftPreset?.title ?? L("Custom", "自定义")
+    }
 
     private var powerAllocationCard: some View {
         let sortedPorts = store.facts.ports.sorted { $0.index < $1.index }
+        let freeWatts = max(0, budget - allocationTotal)
 
-        return VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Label(L("Temporary Power Allocation", "临时功率分配"), systemImage: "slider.horizontal.3")
-                        .font(.headline)
-                    Text(L("Optional wattage cap per port (active ports ≥ 18 W, sum ≤ \(Int(budget)) W).", "手动指定各口功率上限（开启口 ≥ 18 W，合计 ≤ \(Int(budget)) W）。"))
+        return VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 8) {
+                        Label(L("Temporary Power Allocation", "临时功率分配"), systemImage: "chart.pie.fill")
+                            .font(.headline)
+
+                        // Clear hardware-active vs unapplied-preview status badge
+                        HStack(spacing: 5) {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 6, height: 6)
+                            Text(L("Active: \(appliedModeLabel)", "当前生效：\(appliedModeLabel)"))
+                                .font(.system(size: 10.5, weight: .semibold))
+                            if hasPendingAllocationChanges {
+                                Text("→")
+                                    .foregroundStyle(.tertiary)
+                                Text(L("Previewing: \(draftModeLabel)", "预览中：\(draftModeLabel)"))
+                                    .font(.system(size: 10.5, weight: .bold))
+                                    .foregroundStyle(KCStyle.accent)
+                            }
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(
+                            Capsule()
+                                .fill(hasPendingAllocationChanges ? KCStyle.accent.opacity(0.12) : Color.green.opacity(0.12))
+                                .overlay(
+                                    Capsule()
+                                        .strokeBorder(hasPendingAllocationChanges ? KCStyle.accent.opacity(0.35) : Color.green.opacity(0.30), lineWidth: 1)
+                                )
+                        )
+                    }
+                    Text(L("Cap each port's max wattage within the \(Int(budget)) W total charger budget (active ports ≥ 18 W).", "在 \(Int(budget)) W 总功率上限内为每个接口分配最大功率（开启口 ≥ 18 W）。"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -485,80 +565,187 @@ struct ControlsCanvas: View {
                     .foregroundStyle(overBudget ? KCStyle.hot : .secondary)
             }
 
-            GeometryReader { geo in
-                let totalWidth = max(1, geo.size.width - 4)
-                HStack(spacing: 2) {
-                    ForEach(sortedPorts, id: \.index) { port in
-                        let watts = allocationValues[port.index] ?? 0
-                        if watts > 0 {
-                            let fraction = min(1, watts / max(1, max(budget, allocationTotal)))
-                            Capsule()
-                                .fill(portColor(for: port.index))
-                                .frame(width: max(6, totalWidth * fraction))
-                        }
-                    }
-                    Spacer(minLength: 0)
-                }
-                .padding(2)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(
-                    Capsule()
-                        .fill(colorScheme == .dark ? Color.black.opacity(0.35) : Color.black.opacity(0.06))
-                        .overlay(Capsule().strokeBorder(overBudget ? KCStyle.hot.opacity(0.7) : cardBorder, lineWidth: 1))
-                )
-            }
-            .frame(height: 14)
-            .animation(.spring(response: 0.25, dampingFraction: 0.85), value: allocationValues)
+            // Interactive preset pills: green check = currently applied on hardware; orange outline = previewing draft
+            VStack(alignment: .leading, spacing: 7) {
+                HStack(spacing: 8) {
+                    ForEach(AllocationPreset.allCases) { preset in
+                        let isApplied = appliedPreset == preset
+                        let isPreviewing = hasPendingAllocationChanges && draftPreset == preset
 
-            HStack(spacing: 8) {
-                presetButton(L("Laptop Priority (C1 100W)", "笔记本优先 (C1 100W)"), symbol: "laptopcomputer") {
-                    applyLaptopPriority()
-                }
-                presetButton(L("Split Evenly", "均分"), symbol: "equal.circle") {
-                    distributeEvenly()
-                }
-                presetButton(L("Desk Trio", "桌搭三口"), symbol: "rectangle.3.group") {
-                    applyDeskTrio()
-                }
-                Spacer()
-                Button(L("Apply Allocation", "应用分配")) {
-                    let watts = sortedPorts.map { Int(allocationValues[$0.index] ?? 0) }
-                    store.applyAllocation(watts)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(KCStyle.accent)
-                .disabled(overBudget || allocationTotal == 0)
-            }
-
-            VStack(spacing: 10) {
-                ForEach(sortedPorts, id: \.index) { port in
-                    let value = allocationValues[port.index] ?? 0
-                    HStack(spacing: 12) {
-                        HStack(spacing: 6) {
-                            Circle()
-                                .fill(portColor(for: port.index))
-                                .frame(width: 8, height: 8)
-                            Text(port.connectorType == "A" ? "USB-A" : port.name)
-                                .font(.callout.weight(.medium))
-                        }
-                        .frame(width: 68, alignment: .leading)
-
-                        Slider(value: Binding(
-                            get: { value },
-                            set: { newValue in
-                                let snapped = newValue < 9 ? 0 : max(18, newValue.rounded())
-                                allocationValues[port.index] = min(snapped, port.power)
+                        Button {
+                            applyPreset(preset)
+                        } label: {
+                            HStack(spacing: 5) {
+                                Image(systemName: preset.symbol)
+                                    .font(.caption.weight(.semibold))
+                                Text(preset.title)
+                                    .font(.caption.weight(.semibold))
+                                if isApplied {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 11))
+                                        .foregroundStyle(isPreviewing ? Color.white : Color.green)
+                                } else if isPreviewing {
+                                    Text(L("Preview", "预览"))
+                                        .font(.system(size: 9.5, weight: .bold))
+                                        .padding(.horizontal, 5)
+                                        .padding(.vertical, 1.5)
+                                        .background(Color.white.opacity(0.22), in: Capsule())
+                                }
                             }
-                        ), in: 0...port.power)
-                        .tint(portColor(for: port.index))
+                            .foregroundStyle(isPreviewing ? Color.white : Color.primary)
+                            .padding(.horizontal, 11)
+                            .padding(.vertical, 6)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .fill(
+                                        isPreviewing
+                                            ? KCStyle.accent
+                                            : (isApplied ? Color.green.opacity(colorScheme == .dark ? 0.14 : 0.10) : Color.primary.opacity(colorScheme == .dark ? 0.08 : 0.06))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                            .strokeBorder(
+                                                isPreviewing
+                                                    ? KCStyle.accent
+                                                    : (isApplied ? Color.green.opacity(0.55) : Color.primary.opacity(0.12)),
+                                                lineWidth: (isApplied || isPreviewing) ? 1.2 : 1
+                                            )
+                                    )
+                            )
+                            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { hovering in
+                            withAnimation(.spring(response: 0.2, dampingFraction: 0.85)) {
+                                hoveredPreset = hovering ? preset : (hoveredPreset == preset ? nil : hoveredPreset)
+                            }
+                        }
+                        .overlay(alignment: .top) {
+                            if hoveredPreset == preset {
+                                FloatingHoverTip(
+                                    symbol: preset.symbol,
+                                    title: preset.title,
+                                    message: preset.tip,
+                                    accent: isApplied ? Color.green : KCStyle.accent
+                                )
+                                .offset(y: -86)
+                                .transition(.opacity.combined(with: .scale(scale: 0.94, anchor: .bottom)))
+                                .allowsHitTesting(false)
+                            }
+                        }
+                        .zIndex(hoveredPreset == preset ? 50 : 1)
+                    }
 
-                        Text(value == 0 ? L("Off", "关") : "\(Int(value)) W")
-                            .font(.callout.weight(.semibold))
-                            .monospacedDigit()
-                            .foregroundStyle(value == 0 ? .tertiary : .primary)
-                            .frame(width: 52, alignment: .trailing)
+                    // Reset to currently applied allocation state
+                    Button {
+                        withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
+                            allocationValues = initialAllocationValues
+                            draftPreset = appliedPreset
+                        }
+                    } label: {
+                        Label(L("Reset", "恢复当前"), systemImage: "arrow.counterclockwise")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(hasPendingAllocationChanges ? Color.primary : Color.secondary.opacity(0.45))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .strokeBorder(Color.primary.opacity(hasPendingAllocationChanges ? 0.22 : 0.10), lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!hasPendingAllocationChanges)
+
+                    Spacer()
+
+                    Button(L("Apply Allocation", "应用分配")) {
+                        let watts = sortedPorts.map { Int(allocationValues[$0.index] ?? 0) }
+                        store.applyAllocation(watts)
+                        withAnimation(.spring(response: 0.28, dampingFraction: 0.84)) {
+                            initialAllocationValues = allocationValues
+                            appliedPreset = draftPreset
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(KCStyle.accent)
+                    .disabled(overBudget || allocationTotal == 0 || !hasPendingAllocationChanges)
+                }
+
+                // Subtle status/tip footer line
+                if let tipPreset = hoveredPreset {
+                    HStack(spacing: 6) {
+                        Image(systemName: "info.circle")
+                            .font(.caption2)
+                            .foregroundStyle(KCStyle.accent)
+                        Text(tipPreset.tip)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } else if hasPendingAllocationChanges {
+                    HStack(spacing: 6) {
+                        Image(systemName: "exclamationmark.circle")
+                            .font(.caption2)
+                            .foregroundStyle(KCStyle.accent)
+                        Text(L("Previewing \(draftModeLabel) — click \"Apply Allocation\" to send to charger, or Reset to revert.", "正在预览「\(draftModeLabel)」——点击「应用分配」下发到小电拼，或点「恢复当前」撤销。"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
+            }
+
+            // Side-by-side: Live 160W Donut Chart on the left + 5 Port Sliders with distinct colors & USB-A/USB-C icons on the right
+            HStack(alignment: .center, spacing: 24) {
+                // Pure SwiftUI 160W Donut / Pie Chart (zero Swift Charts SectorMark crash risk)
+                PowerBudgetDonut(
+                    slices: sortedPorts.enumerated().map { pos, port in
+                        PowerBudgetSlice(
+                            id: port.index,
+                            watts: allocationValues[port.index] ?? 0,
+                            color: portColor(at: pos)
+                        )
+                    },
+                    budget: budget,
+                    total: allocationTotal,
+                    freeWatts: freeWatts,
+                    overBudget: overBudget
+                )
+                .frame(width: 146, height: 146)
+
+                // 5 Port Sliders with physical USB-A / USB-C connector icons and 5 distinct hues
+                VStack(spacing: 11) {
+                    ForEach(Array(sortedPorts.enumerated()), id: \.element.index) { pos, port in
+                        let value = allocationValues[port.index] ?? 0
+                        let tint = portColor(at: pos)
+                        let isUSBA = port.connectorType == "A"
+
+                        HStack(spacing: 10) {
+                            HStack(spacing: 7) {
+                                PortConnectorIcon(isUSBA: isUSBA, tint: value > 0 ? tint : .secondary)
+                                Text(isUSBA ? "USB-A" : port.name)
+                                    .font(.callout.weight(.semibold))
+                                    .foregroundStyle(value > 0 ? .primary : .secondary)
+                            }
+                            .frame(width: 82, alignment: .leading)
+
+                            Slider(value: Binding(
+                                get: { value },
+                                set: { newValue in
+                                    let snapped = newValue < 9 ? 0 : max(18, newValue.rounded())
+                                    allocationValues[port.index] = min(snapped, port.power)
+                                    draftPreset = nil
+                                }
+                            ), in: 0...port.power)
+                            .tint(tint)
+
+                            Text(value == 0 ? L("Off", "关") : "\(Int(value)) W")
+                                .font(.callout.weight(.semibold))
+                                .monospacedDigit()
+                                .foregroundStyle(value == 0 ? .tertiary : .primary)
+                                .frame(width: 48, alignment: .trailing)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity)
             }
         }
         .padding(18)
@@ -569,18 +756,25 @@ struct ControlsCanvas: View {
         )
     }
 
-    private func presetButton(_ title: String, symbol: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Label(title, systemImage: symbol)
-                .font(.caption.weight(.medium))
+    private func applyPreset(_ preset: AllocationPreset) {
+        draftPreset = preset
+        switch preset {
+        case .laptop: applyLaptopPriority()
+        case .even: distributeEvenly()
+        case .trio: applyDeskTrio()
         }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
     }
 
-    private func portColor(for index: Int) -> Color {
-        let palette: [Color] = [.cyan, KCStyle.accent, .purple, .teal, .green]
-        return palette[abs(index) % palette.count]
+    private func portColor(at position: Int) -> Color {
+        // 5 maximally distinct hues across USB-A, C1, C2, C3, C4
+        let palette: [Color] = [
+            Color(red: 0.22, green: 0.74, blue: 0.97), // USB-A: Sky Cyan
+            KCStyle.accent,                             // C1: Ember Orange
+            Color(red: 0.66, green: 0.33, blue: 0.97), // C2: Electric Purple
+            Color(red: 0.96, green: 0.62, blue: 0.04), // C3: Amber Gold
+            Color(red: 0.13, green: 0.77, blue: 0.37)  // C4: Emerald Green
+        ]
+        return palette[abs(position) % palette.count]
     }
 
     private func distributeEvenly() {
@@ -631,6 +825,172 @@ struct ControlsCanvas: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Pure SwiftUI 160W Donut Chart & Floating Hover Tip Bubble
+
+private struct PowerBudgetSlice: Identifiable {
+    let id: Int
+    let watts: Double
+    let color: Color
+}
+
+private struct PowerBudgetDonut: View {
+    let slices: [PowerBudgetSlice]
+    let budget: Double
+    let total: Double
+    let freeWatts: Double
+    let overBudget: Bool
+
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var denominator: Double {
+        max(1, max(budget, total))
+    }
+
+    private var segments: [(id: Int, start: Double, end: Double, color: Color)] {
+        var cursor = 0.0
+        var result: [(Int, Double, Double, Color)] = []
+        let gap = 0.008
+        for slice in slices where slice.watts > 0 {
+            let frac = slice.watts / denominator
+            let start = cursor + gap / 2
+            let end = max(start, cursor + frac - gap / 2)
+            result.append((slice.id, start, end, slice.color))
+            cursor += frac
+        }
+        return result
+    }
+
+    var body: some View {
+        ZStack {
+            // Unallocated track ring
+            Circle()
+                .stroke(
+                    Color.primary.opacity(colorScheme == .dark ? 0.10 : 0.08),
+                    style: StrokeStyle(lineWidth: 22, lineCap: .butt)
+                )
+
+            // Colored port allocation arcs
+            ForEach(segments, id: \.id) { seg in
+                Circle()
+                    .trim(from: seg.start, to: seg.end)
+                    .stroke(seg.color, style: StrokeStyle(lineWidth: 22, lineCap: .butt))
+                    .rotationEffect(.degrees(-90))
+            }
+
+            VStack(spacing: 2) {
+                Text("\(Int(total)) W")
+                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(overBudget ? KCStyle.hot : .primary)
+                if overBudget {
+                    Text("+\(Int(total - budget)) W")
+                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .foregroundStyle(KCStyle.hot)
+                } else if freeWatts > 0 {
+                    Text(L("\(Int(freeWatts))W free", "余 \(Int(freeWatts))W"))
+                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(L("100% full", "满额分配"))
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(11)
+        .animation(.spring(response: 0.28, dampingFraction: 0.84), value: total)
+    }
+}
+
+/// TipKit-style floating frosted speech bubble shown on mouse hover without stealing focus.
+private struct FloatingHoverTip: View {
+    let symbol: String
+    let title: String
+    let message: String
+    let accent: Color
+
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .top, spacing: 9) {
+                Image(systemName: symbol)
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(accent)
+                    .frame(width: 24, height: 24)
+                    .background(accent.opacity(0.16), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.primary)
+                    Text(message)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(10)
+            .frame(width: 240, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 11, style: .continuous)
+                    .fill(colorScheme == .dark ? Color(white: 0.16) : Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 11, style: .continuous)
+                            .strokeBorder(accent.opacity(0.35), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.28), radius: 12, y: 4)
+            )
+
+            // Downward speech-bubble pointer
+            TrianglePointer()
+                .fill(colorScheme == .dark ? Color(white: 0.16) : Color.white)
+                .frame(width: 12, height: 6)
+        }
+    }
+}
+
+private struct TrianglePointer: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - Physical USB-A & USB-C Hardware Connector Icon
+
+private struct PortConnectorIcon: View {
+    let isUSBA: Bool
+    let tint: Color
+
+    var body: some View {
+        ZStack {
+            if isUSBA {
+                // Classic rectangular USB-A receptacle with upper contact block
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .strokeBorder(tint, lineWidth: 1.5)
+                    .frame(width: 22, height: 11)
+                RoundedRectangle(cornerRadius: 1, style: .continuous)
+                    .fill(tint)
+                    .frame(width: 15, height: 3)
+                    .offset(y: -1.8)
+            } else {
+                // Sleek pill-shaped USB-C receptacle with centered tongue
+                Capsule()
+                    .strokeBorder(tint, lineWidth: 1.5)
+                    .frame(width: 22, height: 10)
+                Capsule()
+                    .fill(tint)
+                    .frame(width: 12, height: 2.2)
+            }
+        }
+        .frame(width: 24, height: 14)
     }
 }
 

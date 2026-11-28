@@ -37,22 +37,28 @@ struct DashboardView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(canvasBg)
 
-                // Soft ceramic fade scrim so scrolling content never clashes behind the floating glass capsule
-                LinearGradient(
-                    colors: [canvasBg.opacity(0), canvasBg.opacity(0.88), canvasBg],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 82)
-                .allowsHitTesting(false)
+                // Soft ceramic fade scrim & floating capsule (hidden on Controls canvas to avoid overlapping sliders)
+                if selection != .controls {
+                    LinearGradient(
+                        colors: [canvasBg.opacity(0), canvasBg.opacity(0.88), canvasBg],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 82)
+                    .allowsHitTesting(false)
+                }
 
                 VStack(spacing: 10) {
                     if let toast = store.toast {
                         ToastPill(toast: toast)
                             .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
-                    FloatingControlBar(confirmingStrategy: $confirmingStrategy)
+                    if selection != .controls {
+                        FloatingControlBar(confirmingStrategy: $confirmingStrategy)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
                 }
+                .animation(.spring(response: 0.28, dampingFraction: 0.85), value: selection)
                 .padding(.bottom, 14)
                 .padding(.horizontal, 20)
             }
